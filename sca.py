@@ -22,6 +22,7 @@ import re, sys
 gdebug = False
 
 class SCAError(Exception):
+    "Error class for everything SCA-related (e.g. invalid rules or categories)"
     pass
 
 def trymatch(pattern, string, flags=0):
@@ -261,7 +262,7 @@ Returns a string."""
     return word
 
 def sca(categories, rules, words, outFormat=0, rewrites=[], rewOut=False, debug=False):
-    """Apply the specified sound changes. Basically Mark Rosenfelder's SCA\u00b2.
+    """Apply the specified sound changes to the words. Basically Mark Rosenfelder's SCA\u00b2.
 
 Arguments:
     categories : list of category strings
@@ -271,7 +272,7 @@ Arguments:
         - a format string, with
             {inw}: the original word
             {outw}: the transformed word
-            {gloss}: the gloss
+            {gloss}: the gloss, including the gloss symbol \u2023
         - a number from 0 to 2 specify a preset output format from the SCA²:
             0: "{outw}{gloss}"
             1: "{inw} \u2192 {outw}{gloss}"
@@ -280,6 +281,9 @@ Arguments:
     rewrites   : List of rewrite rules. Defaults to ""
     rewOut     : Whether the rewrite rules should be reverted on the
         output. Defaults to False.
+    debug      : Whether to print debug information to stderr. WARNING:
+        VERY extensive. Use with care and with as few words and rules as
+        possible. Defaults to False.
 Returns a list of output strings according to the output format."""
 
     global gdebug
@@ -352,7 +356,7 @@ Returns a list of output strings according to the output format."""
 
 
 def printsca(categories, rules, words, outFormat=0, rewrites=[], rewOut=False, debug=False):
-    """Apply the specified sound changes. Basically Mark Rosenfelder's SCA\u00b2.
+    """Apply the specified sound changes to the words. Basically Mark Rosenfelder's SCA\u00b2.
 
 Arguments:
     categories : list of category strings
@@ -362,7 +366,7 @@ Arguments:
         - a format string, with
             {inw}: the original word
             {outw}: the transformed word
-            {gloss}: the gloss
+            {gloss}: the gloss, including the gloss symbol \u2023
         - a number from 0 to 2 specify a preset output format from the SCA²:
             0: "{outw}{gloss}"
             1: "{inw} \u2192 {outw}{gloss}"
@@ -371,6 +375,9 @@ Arguments:
     rewrites   : List of rewrite rules. Defaults to []
     rewOut     : Whether the rewrite rules should be reverted on the
         output. Defaults to False.
+    debug      : Whether to print debug information to stderr. WARNING:
+        VERY extensive. Use with care and with as few words and rules as
+        possible. Defaults to False.
 Prints the output according to the output format."""
     
     for outp in sca(categories, rules, words, outFormat, rewrites, rewOut, debug):
@@ -378,6 +385,30 @@ Prints the output according to the output format."""
 
 
 class SCAConf:
+    """Class for an SCA configuration. Holds all input fields.
+
+Attributes:
+    categories : list of category strings
+    rules      : list of rule strings
+    inLex      : list of word strings, including glosses
+    outFormat  : format of the output, either:
+        - a format string, with
+            {inw}: the original word
+            {outw}: the transformed word
+            {gloss}: the gloss, including the gloss symbol \u2023
+        - a number from 0 to 2 specify a preset output format from the SCA²:
+            0: "{outw}{gloss}"
+            1: "{inw} \u2192 {outw}{gloss}"
+            2: "{outw}{gloss} [{inw}]"
+        Defaults to 0.
+    rewrites   : List of rewrite rule strings. Defaults to []
+    rewOut     : Whether the rewrite rules should be reverted on the
+        output. Defaults to False.
+    debug      : Whether to print debug information to stderr. WARNING:
+        VERY extensive. Use with care and with as few words and rules as
+        possible. Defaults to False.
+"""
+
     def __init__(self, categories=[], rules=[], inLex=[], outFormat=0, rewrites=[], rewOut=0, debug=0):
         self.categories = categories
         self.rules = rules
@@ -388,9 +419,11 @@ class SCAConf:
         self.debug = debug
         
     def sca(self):
+        "Run the SCA and return the output as a list."
         return sca(self.categories, self.rules, self.inLex, self.outFormat, self.rewrites, self.rewOut, self.debug)
     
     def printsca(self):
+        "Run the SCA and print the outputs to stdout."
         printsca(self.categories, self.rules, self.inLex, self.outFormat, self.rewrites, self.rewOut, self.debug)
 
 example = SCAConf(
