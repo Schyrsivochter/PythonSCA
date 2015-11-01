@@ -436,4 +436,4 @@ example = SCAConf(
 )
 
 if __name__ == "__main__":
-    printsca(example.categories, example.rules, example.inLex, example.outFormat, example.rewrites, example.rewOut, example.debug)
+    example.printsca()

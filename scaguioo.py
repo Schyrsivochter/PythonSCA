@@ -17,9 +17,8 @@ SCA² (C) 2012 Mark Rosenfelder aka Zompist (markrose@zompist.com)
 Python re-code (C) 2015 Andreas Kübrich aka Schyrsivochter (andreas.kuebrich@kuebrich.de)"""
 
 
-from sys import path
-import os
-path.append(os.path.dirname(__file__))
+import os, sys
+sys.path.append(os.path.dirname(__file__))
 import sca
 
 import tkinter as tk, tkinter.filedialog as filedialog, tkinter.messagebox as messagebox, tkinter.ttk as ttk
@@ -27,9 +26,9 @@ import re, json
 
 
 def toSC(rewrites, categories, rules):
-    return "\n".join(categories) + "\n\n" + \
-           "\n".join(rewrites)   + "\n\n" + \
-           "\n".join(rules)
+    return ("\n".join(categories) + "\n\n" + 
+            "\n".join(rewrites)   + "\n\n" + 
+            "\n".join(rules))
 
 def fromSC(sc):
     rewrites   = []
