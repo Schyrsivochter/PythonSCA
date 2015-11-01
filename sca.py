@@ -355,7 +355,7 @@ Returns a list of output strings according to the output format."""
     return [outFormat.format(outw=unrew(outw, False), inw=unrew(inw, True), gloss=gloss) for inw, outw, gloss in transformed]
 
 
-def printsca(categories, rules, words, outFormat=0, rewrites=[], rewOut=False, debug=False):
+def printsca(categories, rules, words, outFormat=0, rewrites=[], rewOut=False, debug=False, file=sys.stdout):
     """Apply the specified sound changes to the words. Basically Mark Rosenfelder's SCA\u00b2.
 
 Arguments:
@@ -380,8 +380,7 @@ Arguments:
         possible. Defaults to False.
 Prints the output according to the output format."""
     
-    for outp in sca(categories, rules, words, outFormat, rewrites, rewOut, debug):
-        print(outp)
+    print(*sca(categories, rules, words, outFormat, rewrites, rewOut, debug), sep="\n", file=file)
 
 
 class SCAConf:
@@ -422,9 +421,9 @@ Attributes:
         "Run the SCA and return the output as a list."
         return sca(self.categories, self.rules, self.inLex, self.outFormat, self.rewrites, self.rewOut, self.debug)
     
-    def printsca(self):
-        "Run the SCA and print the outputs to stdout."
-        printsca(self.categories, self.rules, self.inLex, self.outFormat, self.rewrites, self.rewOut, self.debug)
+    def printsca(self, file=sys.stdout):
+        "Run the SCA and print the outputs."
+        printsca(self.categories, self.rules, self.inLex, self.outFormat, self.rewrites, self.rewOut, self.debug, file=file)
 
 example = SCAConf(
     categories = [
