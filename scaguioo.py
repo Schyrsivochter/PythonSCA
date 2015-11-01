@@ -26,11 +26,13 @@ import re, json
 
 
 def toSC(rewrites, categories, rules):
+    "Transform lists of rewrites, categories and rules to an SC file."
     return ("\n".join(categories) + "\n\n" + 
             "\n".join(rewrites)   + "\n\n" + 
             "\n".join(rules))
 
 def fromSC(sc):
+    "Parse an SC file into lists of rewrites, categories and rules."
     rewrites   = []
     categories = []
     rules      = []
@@ -44,18 +46,21 @@ def fromSC(sc):
     return rewrites, categories, rules
 
 class SCATab:
+    "A tab of the PythonSCA GUI application."
 
     lastLex = ""
 
     lastSC = ""
 
     def applyRules(self):
+        "Apply the rules to the input lexicon."
         outputs = self.getSCAConf().sca()
         self.olxTxt.configure(state="normal")
         self.olxTxt.replace("1.0", "end", "\n".join(outputs))
         self.olxTxt.configure(state="disabled")
 
     def saveSC(self, scPath):
+        "Save the rewrites, categories and rules to a file."
         rews  = self.rewTxt.get("1.0","end").splitlines()
         cats  = self.catTxt.get("1.0","end").splitlines()
         rules = self.rulTxt.get("1.0","end").splitlines()
@@ -64,11 +69,13 @@ class SCATab:
             scFile.write(scContent)
 
     def saveLex(self, lexPath):
+        "Save the input lexicon to a file."
         lexContent = self.ilxTxt.get("1.0","end")
         with open(lexPath, mode=("w" if os.path.isfile(lexPath) else "x"), encoding="utf8") as lexFile:
             lexFile.write(lexContent)
 
     def loadSC(self, scPath):
+        "Load the rewrites, categories and rules from a file, if it exists."
         exists = os.path.isfile(scPath)
         if exists:
             with open(scPath, encoding="utf8") as scFile:
@@ -81,6 +88,7 @@ class SCATab:
         return exists
 
     def loadLex(self, lexPath):
+        "Load the input lexicon from a file, if it exists."
         exists = os.path.isfile(lexPath)
         if exists:
             with open(lexPath, encoding="utf8") as lexFile:
@@ -90,6 +98,7 @@ class SCATab:
         return exists
 
     def setSCAConf(self, conf):
+        "Set the tab contents to the settings in an sca.SCAConf object."
         c = conf
         self.rewTxt.replace("1.0", "end", "\n".join(c.rewrites))
         self.catTxt.replace("1.0", "end", "\n".join(c.categories))
@@ -104,6 +113,7 @@ class SCATab:
         self.rewOut.set(c.rewOut)
 
     def getSCAConf(self):
+        "Return an sca.SCAConf object with the tab contents."
         c = sca.SCAConf(rewOut=self.rewOut.get(), debug=self.debug.get())
         of = self.outFormat.get()
         c.outFormat = of if of != 3 else self.customFormat.get()
@@ -114,6 +124,7 @@ class SCATab:
         return c
 
     def buildCompact(self):
+        "Arrange the contents in compact view (in two rows, better for a small window)."
         for widget in self.frm.grid_slaves():
             widget.grid_forget()
         
@@ -132,6 +143,7 @@ class SCATab:
 
 
     def buildExpanded(self):
+        "Arrange the contents in expanded view (in one row, ideal for maximised view)."
         for widget in self.frm.grid_slaves():
             widget.grid_forget()
             
@@ -150,6 +162,7 @@ class SCATab:
         self.frm.grid_rowconfigure(3, weight=1)
 
     def build(self, compact=True):
+        "Arrange the tab contents either expanded (in one row, ideal for maximised view) or compact (in two rows, better for a small window)."
         if compact: self.buildCompact()
         else:       self.buildExpanded()
         
@@ -158,7 +171,7 @@ class SCATab:
         self.optLfm.grid_configure(pady=5)
         
     def make(self, compact=True):
-        
+        "Build the GUI of the tab and arrange them either expanded (in one row, ideal for maximised view) or compact (in two rows, better for a small window)."
         # first two rows
         self.rewLbl = ttk.Label(self.frm, text="Rewrite rules")
         self.rewTxt =  tk.Text(self.frm, borderwidth=1, relief="solid", font="consolas 10")
@@ -211,6 +224,7 @@ class SCATab:
 
 
 class SCAWin:
+    """The PythonSCA GUI application."""
 
     tabs       = []
     closedTabs = []
@@ -224,6 +238,7 @@ class SCAWin:
 
 
     def curTab(self):
+        "Return the SCATab object of the current tab."
         return self.tabs[self.notebook.index("current")]
 
     def askSaveSC(self):
@@ -258,24 +273,29 @@ class SCAWin:
             self.curTab().lastLex = lexPath
 
     def clearRules(self):
+        "Clear the rewrites, categories and rules fields of the current tab."
         if self.tabs:
-            self.curTab().rewTxt.delete("1.0", "end")
-            self.curTab().catTxt.delete("1.0", "end")
-            self.curTab().rulTxt.delete("1.0", "end")
+            tab = self.curTab()
+            tab.rewTxt.delete("1.0", "end")
+            tab.catTxt.delete("1.0", "end")
+            tab.rulTxt.delete("1.0", "end")
 
     def newTab(self):
+        "Open a new blank tab."
         tab = SCATab(self.notebook, compact=self.isCompact)
         self.notebook.add(tab.frm, text="New tab")
         self.tabs.append(tab)
         self.notebook.select(len(self.tabs)-1)
 
     def closeTab(self, tabid):
+        "Close tab and keep it for restoring."
         if self.tabs:
             no = self.notebook.index(tabid)
             self.closedTabs.append((self.tabs.pop(no), self.notebook.tab(no, option="text")))
             self.notebook.forget(tabid)
 
     def restoreTab(self):
+        "Restore last closed tab."
         if self.closedTabs:
             tab, text = self.closedTabs.pop()
             self.tabs.append(tab)
@@ -283,6 +303,7 @@ class SCAWin:
             self.notebook.select(len(self.tabs)-1)
 
     def renameTab(self, tabid):
+        "Open a modal dialog for renaming tab."
         if self.tabs:
             renDlg = tk.Toplevel()
             renDlg.grab_set()
@@ -301,6 +322,7 @@ class SCAWin:
             renDlg.mainloop()
 
     def cloneTab(self, tabid):
+        "Open a new tab with the same contents as tab."
         otab = self.tabs[tabid]
         ntab = SCATab(self.win, compact=self.isCompact)
         ntab.setSCAConf(otab.getSCAConf())
@@ -309,18 +331,21 @@ class SCAWin:
         self.notebook.select(len(self.tabs)-1)
 
     def moveTabRight(self, tabid):
+        "Swap tab with its right neighbour."
         no = self.notebook.index(tabid)
         if no < len(self.tabs)-1:
             self.notebook.insert(no+1, no)
             self.tabs[no], self.tabs[no+1] = self.tabs[no+1], self.tabs[no]
 
     def moveTabLeft(self, tabid):
+        "Swap tab with its left neighbour."
         no = self.notebook.index(tabid)
         if no > 0:
             self.notebook.insert(no-1, no)
             self.tabs[no], self.tabs[no-1] = self.tabs[no-1], self.tabs[no]
 
     def newTabMenu(self, tabid):
+        "Create a new popup menu for tab."
         men = tk.Menu(self.win)
         men.add_command(label="Close tab",  command=(lambda: self.closeTab (tabid)))
         men.add_command(label="Rename tab", command=(lambda: self.renameTab(tabid)))
@@ -332,6 +357,7 @@ class SCAWin:
 
 
     def onClose(self):
+        "Event handler for closing the window. Includes saving the configuration, the tabs and their contents to the __last files."
         scaDir = os.path.dirname(__file__) + "\\WD"
         scaF = "{}/__last{}.sca"
         slxF = "{}/__last{}.slx"
@@ -386,8 +412,9 @@ class SCAWin:
 
 
     def onClick(self, event):
+        "Event handler for any mouse button click."
         x, y, b = event.x, event.y, event.num
-        if b == 1: return # left button
+        if b == 1: return # left button does nothing
         try:
             tabClicked = self.notebook.index("@{},{}".format(x, y))
         except tk.TclError:
@@ -407,6 +434,7 @@ class SCAWin:
                 ...
 
     def onResize(self, event):
+        "Event handler for resizing the window."
         c = self.win.winfo_width() < 910
         if self.isCompact != c:
             for tab in self.tabs:
@@ -418,6 +446,7 @@ class SCAWin:
             self.win.minsize(width=460, height=266)
 
     def onSwitchRight(self, event):
+        'Event handler for the "switch tab right" keyboard shortcut.'
         tabid = self.notebook.index("current")
         if tabid < len(self.tabs) - 1:
             self.notebook.select(tabid+1)
@@ -425,6 +454,7 @@ class SCAWin:
             self.notebook.select(0)
 
     def onSwitchLeft(self, event):
+        'Event handler for the "switch tab left" keyboard shortcut.'
         tabid = self.notebook.index("current")
         if tabid > 0:
             self.notebook.select(tabid - 1)
@@ -432,7 +462,8 @@ class SCAWin:
             self.notebook.select(len(self.tabs)-1)
 
     def build(self):
-
+        """Build the actual GUI with the menu and the tabs, and bind the keyboard shortcuts.
+Does not build any tabs or tab contents; that’s the task of newTab() and, ultimately, SCATab.make()."""
         self.notebook = ttk.Notebook(self.win)
         self.notebook.pack(expand=True, fill="both")
 
@@ -479,7 +510,7 @@ class SCAWin:
         self.win.protocol("WM_DELETE_WINDOW", self.onClose)
 
     def loadLast(self):
-        "load the contents from the __last files"
+        "Load the configuration, the tabs and their contents from the __last files."
         scaDir = os.path.dirname(__file__) + "\\WD"
         # load the .json file
         jsonPath = scaDir + "/__last.json"
@@ -520,9 +551,7 @@ class SCAWin:
             
 
     def __init__(self):
-
         self.win = tk.Tk()
-
         self.win.option_add("*tearOff", False)
         self.win.wm_title("PythonSCA\u00b2")
         self.win.wm_geometry("=910x266")
@@ -531,6 +560,7 @@ class SCAWin:
         self.loadLast()
 
     def mainloop(self):
+        "Call the mainloop of Tk (i.e. start the program)."
         self.win.mainloop()
 
 
