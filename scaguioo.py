@@ -2,18 +2,6 @@
 ### Graphical interface for PythonSCA²
 ###
 ### Roadmap:
-###     • Using a LabelFrame for Options – 2015-08-27/01
-###     • F9 as Apply shortcut – 2015-09-05/15
-###     • Using Ttk for everything that supports it – 2015-09-23/18
-###     • Multiple tabs – 2015-09-28/15
-###     • Save tabs on exit and restore on startup – 2015-09-30/16
-###     • Save and restore output lexicon too – 2015-10-02/16
-###     • Save and restore everything with the JSON – 2015-10-02/16
-###     • Ability to restore closed tabs – 2015-10-05/22
-###     • Clone tabs – 2015-10-12/17
-###     • Move tabs with menu options – 2015-10-12/18
-###     • View option: all textareas side by side (for fullscreen view) – 2015-10-21/22
-###     • Switch tabs with Ctrl-PgUp/PgDn – 2015-10-26/18
 ###     • Paned windows for better resize control
 ###     • Make the Apply button not that sticky
 

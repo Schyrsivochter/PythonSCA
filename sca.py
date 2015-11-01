@@ -2,22 +2,8 @@
 ### Python re-code (C) 2015 Schyrsivochter
 ### Started 2015-08-21/14
 ### 
-### Support schedule:
-###     • Replacing of constants in constant environments – 2015-08-21/01
-###     • Word boundaries in environment – 2015-08-22/02
-###     • Nonce categories (brackets) – 2015-08-22/02
-###     • Optionals (parantheses) – 2015-08-22/03
-###     • Named categories in environment – 2015-08-22/11
-###     • Named categories in target – 2015-08-22/11
-###     • Named categories in replacement – 2015-08-22/12
-###     • Metathesis – 2015-08-23/00
-###     • Degemination – 2015-08-23/00
-###     • Gemination – 2015-08-23/01
-###     • Rewrite rules – 2015-08-23/01
-###     • Epenthesis – 2015-08-23/01
-###     • Rule exceptions – 2015-08-24/00
-###     • Define SCAError; raise if input format invalid – 2015-10-02/21
-###     • Wildcard – NYI
+### Roadmap:
+###     • Wildcard
 
 
 import re, sys
