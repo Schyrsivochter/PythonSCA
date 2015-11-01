@@ -1,7 +1,7 @@
 # PythonSCA
 Mark Rosenfelder’s Sound Change Applier, rewritten in Python with a nice GUI.
 
-The PythonSCA is based on Mark Rosenfelder (aka Zompist)’s SCA², implemented in Javascript, which can be found (on his website.)[http://zompist.com/sca2.html]
+The PythonSCA is based on Mark Rosenfelder (aka Zompist)’s SCA², implemented in Javascript, which can be found [on his website.](http://zompist.com/sca2.html)
 
 - Almost fully compatible to Zompist’s SCA². The only exception is the wildcard, which I have not yet implemented, since I don’t need it.
 - Native windowed GUI.
