@@ -1,5 +1,8 @@
-# everything in "Unnütz"
+# everything in Unnütz
 /Unnütz
 
 # the __last files
 __last*
+
+# the __pycache__ folder
+/__pycache__
