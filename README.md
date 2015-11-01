@@ -1,4 +1,4 @@
-# PythonSCA
+﻿# PythonSCA
 Mark Rosenfelder’s Sound Change Applier, rewritten in Python with a nice GUI.
 
 The PythonSCA is based on Mark Rosenfelder (aka Zompist)’s SCA², implemented in Javascript, which can be found [on his website.](http://zompist.com/sca2.html)
@@ -23,3 +23,7 @@ Further information:
 - If you want to see the Python console to debug the program, run `scaguioo.py` directly. (The only thing `scagui.pyw` does is run `scaguioo.py`, but since it has the `pyw` extension, Python hides the console.)
 - Ignore the checkbox named Debug. Originally, it makes the rule applying script show debug info, but you probably won’t understand it, and it will be *very* much, if not far too much for Python or for you to handle. So unless you know what you’re doing, leave it alone.
 - If you have any ideas or suggestions, feel free to contact me!
+
+Current roadmap:
+- For the rule applying script `sca.py`:
+  - Support for the wildcard `…`
