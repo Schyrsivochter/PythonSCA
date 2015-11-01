@@ -321,7 +321,7 @@ class SCAWin:
 
 
     def onClose(self):
-        scaDir = os.path.dirname(__file__)
+        scaDir = os.path.dirname(__file__) + "\\WD"
         scaF = "{}/__last{}.sca"
         slxF = "{}/__last{}.slx"
         jsonPath = scaDir + "/__last.json"
@@ -469,7 +469,7 @@ class SCAWin:
 
     def loadLast(self):
         "load the contents from the __last files"
-        scaDir = os.path.dirname(__file__)
+        scaDir = os.path.dirname(__file__) + "\\WD"
         # load the .json file
         jsonPath = scaDir + "/__last.json"
         if os.path.isfile(jsonPath):
