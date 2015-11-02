@@ -165,12 +165,20 @@ Exception may be an empty string."""
             envMatchedWord = envMatch.string[envMatchStart:envMatchEnd]
 
             # then about the target
+            tgtStart = None
+            tgtEnd   = None
+            tgtWord  = None
             try:
                 tgtStart = trymatch(envBefRE, envMatchedWord).end() # where does the part start that is to be replaced?
                 tgtEnd = tgtStart + trymatch(tgtRE, envMatchedWord[tgtStart:]).end()
                 tgtWord = envMatchedWord[tgtStart:tgtEnd] # the substring to replace
+            except AttributeError as e:
+                raise SCAError('Error in regular expression match of rule "' + "/".join(rule) + '" to word "' + word.strip() + '".') from e
             except BaseException as e:
                 raise SCAError('Error while applying rule "' + "/".join(rule) + '" to word "' + word.strip() + '".') from e
+            finally:
+                printDebug("applyRule", ("pos", pos), ("rule", rule), ("envMatchedWord", envMatchedWord), ("tgtStart", tgtStart), ("tgtEnd", tgtEnd),
+                       ("tgtWord", tgtWord), ("word", word), ("oldWord", oldWord))
 
             excApplies = False
             etgtStart = None
