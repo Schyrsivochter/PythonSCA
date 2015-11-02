@@ -1,12 +1,12 @@
 # PythonSCA
 ## Mark Rosenfelder’s Sound Change Applier, rewritten in Python with a nice GUI.
 
-The PythonSCA is based on Mark Rosenfelder (aka Zompist)’s SCA², implemented in Javascript, which can be found [on his website: zompist.com/sca2.html](http://zompist.com/sca2.htm)
+The PythonSCA is based on Mark Rosenfelder (aka Zompist)’s SCA², implemented in Javascript, which can be found [on his website: http://zompist.com/sca2.html](http://zompist.com/sca2.htm)
 
 Please note that *I am not Mark Rosenfelder or in any way affiliated with him.* This is a personal project.
 
 ### Features
-- Almost fully compatible to Zompist’s SCA². The only exception is the wildcard, which has not been implemented yet.
+- Almost fully compatible to Zompist’s SCA². The only exception is the wildcard, which has not been implemented yet. For details on what it does, see http://zompist.com/scahelp.html.
 - Native windowed GUI.
 - A nice large Apply button, and everything is packed closely (to me it was the main flaw in the SCA² that the Apply button was so small and everything was so far apart), but expands to a side-by-side-view if it gets large.
 - Tabs for running multiple SCAs in one window. They can be renamed, restored after closing, and moved around.
@@ -17,7 +17,6 @@ Please note that *I am not Mark Rosenfelder or in any way affiliated with him.* 
 - Has probably loads of bugs, though.
 
 ### Installation
-
 1. Download and install Python 3 (if you haven’t already got it). It’s important that you use Python 3 and not Python 2, otherwise it won’t work.
 2. Download sca.py, scaguioo.py and scagui.pyw.
 3. Place them where you want. It’s important that you have them all in the same directory, though, or it won’t work (unless you know enough Python to change my code so the GUI looks for sca.py elsewhere).
