@@ -60,13 +60,14 @@ are used for degemination."""
             brackets = True
             lastWasBracket = True
             char = "("
+            numGroups += 1
         elif char == "]":
             brackets = False
             regExpression = regExpression[:-1] # delete the last |
-            numGroups += 1
             char = ")"
-        elif char == ")":
+        elif char == "(":
             numGroups += 1
+        elif char == ")":
             char = ")?"
         elif char in categories:
             numGroups += 1
@@ -100,8 +101,11 @@ Returns a tuple (wholeRE, beforeRE, targetRE, afterRE)."""
         raise SCAError('Bad sound change rule environment: "' + environment + '" (must contain exactly one underscore)')
     envBefore, envAfter = envsplit
     befRE, numGroups = ruleExToRegex(envBefore, categories, 0)
-    tgtRE, numGroups = ruleExToRegex(target,    categories, numGroups)
-    aftRE, numGroups = ruleExToRegex(envAfter,  categories, numGroups)
+    numGroups += 1
+    tgtIndex = numGroups
+    tgtRE, numGroups = ruleExToRegex(target, categories, numGroups)
+    tgtRE = "(" + tgtRE + ")"
+    aftRE, numGroups = ruleExToRegex(envAfter, categories, numGroups)
     printDebug("ruleToRegex",("target", target), ("environment", environment), ("envBefore", envBefore), ("envAfter", envAfter), ("result", (befRE + tgtRE + aftRE, befRE, tgtRE, aftRE)))
     return befRE + tgtRE + aftRE, befRE, tgtRE, aftRE
 
@@ -165,21 +169,16 @@ Exception may be an empty string."""
             envMatchedWord = envMatch.string[envMatchStart:envMatchEnd]
 
             # then about the target
-            tgtStart = None
-            tgtEnd   = None
-            tgtWord  = None
-            try:
-                tgtStart = trymatch(envBefRE, envMatchedWord).end() # where does the part start that is to be replaced?
-                tgtEnd = tgtStart + trymatch(tgtRE, envMatchedWord[tgtStart:]).end()
-                tgtWord = envMatchedWord[tgtStart:tgtEnd] # the substring to replace
-            except AttributeError as e:
-                raise SCAError('Error in regular expression match of rule "' + "/".join(rule) + '" to word "' + word.strip() + '".') from e
-            except BaseException as e:
-                raise SCAError('Error while applying rule "' + "/".join(rule) + '" to word "' + word.strip() + '".') from e
-            finally:
-                printDebug("applyRule", ("pos", pos), ("rule", rule), ("envMatchedWord", envMatchedWord), ("tgtStart", tgtStart), ("tgtEnd", tgtEnd),
-                       ("tgtWord", tgtWord), ("word", word), ("oldWord", oldWord))
-
+            tgtStart, tgtEnd = envMatch.regs[tgtIndex]
+            tgtWord = envMatchedWord[tgtStart:tgtEnd] # the substring to replace
+            if pos + tgtStart != tgtpos: # if we are not arrived yet
+                printDebug("applyRule", ("pos", pos), ("tgtpos", tgtpos), ("tgtStart", tgtStart))
+                if tgtpos == pos:
+                    tgtpos += 1
+                    pos = 0
+                else:
+                    pos += 1
+                continue
             excApplies = False
             etgtStart = None
             etgtEnd = None
@@ -206,9 +205,13 @@ Exception may be an empty string."""
             printDebug("applyRule", ("pos", pos), ("rule", rule), ("envMatchedWord", envMatchedWord), ("excMatchedWord", excMatchedWord), ("tgtStart", tgtStart), ("tgtEnd", tgtEnd),
                        ("etgtStart", etgtStart), ("etgtEnd", etgtEnd), ("tgtWord", tgtWord), ("repword", repword), ("excApplies", excApplies), ("word", word), ("oldWord", oldWord), ("excptRE", excptRE))
             # move behind that which already has been processed
-            pos += len(repword) + (1 if isEpen else 0) # add 1 on epenthesis before something – else we’ll get caught in an endless loop
+            tgtpos += len(repword) + (1 if isEpen else 0) # add 1 on epenthesis before something – else we’ll get caught in an endless loop
+        if tgtpos == pos:
+            tgtpos += 1
+            pos = 0
         else:
             pos += 1
+        printDebug("applyRule", ("pos", pos), ("tgtpos", tgtpos))
     return word
             
 
