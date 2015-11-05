@@ -60,13 +60,14 @@ are used for degemination."""
             brackets = True
             lastWasBracket = True
             char = "("
+            numGroups += 1
         elif char == "]":
             brackets = False
             regExpression = regExpression[:-1] # delete the last |
-            numGroups += 1
             char = ")"
-        elif char == ")":
+        elif char == "(":
             numGroups += 1
+        elif char == ")":
             char = ")?"
         elif char in categories:
             numGroups += 1
@@ -100,10 +101,10 @@ Returns a tuple (wholeRE, beforeRE, targetRE, afterRE)."""
         raise SCAError('Bad sound change rule environment: "' + environment + '" (must contain exactly one underscore)')
     envBefore, envAfter = envsplit
     befRE, numGroups = ruleExToRegex(envBefore, categories, 0)
-    tgtIndex = numGroups + 1
+    numGroups += 1
+    tgtIndex = numGroups
     tgtRE, numGroups = ruleExToRegex(target, categories, numGroups)
     tgtRE = "(" + tgtRE + ")"
-    numGroups += 1
     aftRE, numGroups = ruleExToRegex(envAfter, categories, numGroups)
     printDebug("ruleToRegex",("target", target), ("environment", environment), ("envBefore", envBefore), ("envAfter", envAfter), ("result", (befRE + tgtRE + aftRE, befRE, tgtRE, aftRE)))
     return befRE + tgtRE + aftRE, befRE, tgtRE, aftRE, tgtIndex
