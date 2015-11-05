@@ -169,9 +169,12 @@ Exception may be an empty string."""
             tgtStart, tgtEnd = envMatch.regs[tgtIndex]
             tgtWord = envMatchedWord[tgtStart:tgtEnd] # the substring to replace
             if pos + tgtStart != tgtpos: # if we are not arrived yet
-                if tgtpos == pos: tgtpos += 1
                 printDebug("applyRule", ("pos", pos), ("tgtpos", tgtpos), ("tgtStart", tgtStart))
-                pos += 1
+                if tgtpos == pos:
+                    tgtpos += 1
+                    pos = 0
+                else:
+                    pos += 1
                 continue
             excApplies = False
             etgtStart = None
@@ -198,9 +201,12 @@ Exception may be an empty string."""
                        ("etgtStart", etgtStart), ("etgtEnd", etgtEnd), ("tgtWord", tgtWord), ("repword", repword), ("excApplies", excApplies), ("word", word), ("oldWord", oldWord))
             # move behind that which already has been processed
             tgtpos += len(repword) + (1 if isEpen else 0) # add 1 on epenthesis before something – else we’ll get caught in an endless loop
-        if tgtpos == pos: tgtpos += 1
+        if tgtpos == pos:
+            tgtpos += 1
+            pos = 0
+        else:
+            pos += 1
         printDebug("applyRule", ("pos", pos), ("tgtpos", tgtpos))
-        pos += 1
     return word
             
 
