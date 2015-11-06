@@ -100,10 +100,13 @@ Returns a tuple (wholeRE, beforeRE, targetRE, afterRE)."""
         raise SCAError('Bad sound change rule environment: "' + environment + '" (must contain exactly one underscore)')
     envBefore, envAfter = envsplit
     befRE, numGroups = ruleExToRegex(envBefore, categories, 0)
-    tgtRE, numGroups = ruleExToRegex(target,    categories, numGroups)
-    aftRE, numGroups = ruleExToRegex(envAfter,  categories, numGroups)
+    tgtIndex = numGroups + 1
+    tgtRE, numGroups = ruleExToRegex(target, categories, numGroups)
+    tgtRE = "(" + tgtRE + ")"
+    numGroups += 1
+    aftRE, numGroups = ruleExToRegex(envAfter, categories, numGroups)
     printDebug("ruleToRegex",("target", target), ("environment", environment), ("envBefore", envBefore), ("envAfter", envAfter), ("result", (befRE + tgtRE + aftRE, befRE, tgtRE, aftRE)))
-    return befRE + tgtRE + aftRE, befRE, tgtRE, aftRE
+    return befRE + tgtRE + aftRE, befRE, tgtRE, aftRE, tgtIndex
 
 def replace(tgtword, rule, categories):
     target, replacement, envDummy, excDummy = rule
@@ -139,64 +142,52 @@ Exception may be an empty string."""
 
     target, replacement, environment, exception = rule
     try:
-        envmtRE, envBefRE, tgtRE, envAftRE = ruleToRegex(target, environment, categories)
+        envmtRE, envBefRE, tgtRE, envAftRE, tgtIndex = ruleToRegex(target, environment, categories)
     except SCAError as e:
         raise SCAError('Bad sound change rule: "' + "/".join(rule if exception else rule[0:3]) + '" (environment must contain exactly one underscore)') from e
     if exception:
         try:
-            excptRE, excBefRE, dummy, excAftRE = ruleToRegex(target, exception, categories)
+            excptRE, excBefRE, dummy, excAftRE, etgtIndex = ruleToRegex(target, exception, categories)
         except SCAError as e:
             raise SCAError('Bad sound change rule: "' + "/".join(rule) + '" (exception must contain exactly one underscore)') from e
     else:
         excptRE = None
-    if not (tgtRE or envBefRE): # if rule is epenthesis before something
-        pos = 1 # env of "_#" would otherwise match the space before the word, resulting in an endless loop
-        isEpen = True
-    else:
-        pos = 0
-        isEpen = False
+
+    # tgtpos is the position of the target, pos is the one of the environment
+    tgtpos = 1
+    pos = 0
+    isEpen = not (tgtRE or envBefRE) # if rule is epenthesis before something
     while pos < len(word):
         oldWord = word
         envMatch = trymatch(envmtRE, word[pos:])
         if envMatch:
             # find out about the environment
-            envMatchStart = envMatch.start()
             envMatchEnd = envMatch.end()
-            envMatchedWord = envMatch.string[envMatchStart:envMatchEnd]
+            envMatchedWord = envMatch.string[:envMatchEnd]
 
             # then about the target
-            tgtStart = None
-            tgtEnd   = None
-            tgtWord  = None
-            try:
-                tgtStart = trymatch(envBefRE, envMatchedWord).end() # where does the part start that is to be replaced?
-                tgtEnd = tgtStart + trymatch(tgtRE, envMatchedWord[tgtStart:]).end()
-                tgtWord = envMatchedWord[tgtStart:tgtEnd] # the substring to replace
-            except AttributeError as e:
-                raise SCAError('Error in regular expression match of rule "' + "/".join(rule) + '" to word "' + word.strip() + '".') from e
-            except BaseException as e:
-                raise SCAError('Error while applying rule "' + "/".join(rule) + '" to word "' + word.strip() + '".') from e
-            finally:
-                printDebug("applyRule", ("pos", pos), ("rule", rule), ("envMatchedWord", envMatchedWord), ("tgtStart", tgtStart), ("tgtEnd", tgtEnd),
-                       ("tgtWord", tgtWord), ("word", word), ("oldWord", oldWord))
-
+            tgtStart, tgtEnd = envMatch.regs[tgtIndex]
+            tgtWord = envMatchedWord[tgtStart:tgtEnd] # the substring to replace
+            if pos + tgtStart != tgtpos: # if we are not arrived yet
+                if tgtpos == pos: tgtpos += 1
+                printDebug("applyRule", ("pos", pos), ("tgtpos", tgtpos), ("tgtStart", tgtStart))
+                pos += 1
+                continue
             excApplies = False
             etgtStart = None
             etgtEnd = None
             excMatchedWord = None
-            # then about the exception, if there is one
+            # find out about the exception, if there is one
             if exception:
                 for expos in range(len(word)):
                     excMatch = trymatch(excptRE, word[expos:])
                     if excMatch:
-                        excMatchStart = excMatch.start()
                         excMatchEnd = excMatch.end()
-                        excMatchedWord = excMatch.string[excMatchStart:excMatchEnd]
+                        excMatchedWord = excMatch.string[:excMatchEnd]
                         # then about the exception target
-                        etgtStart = trymatch(excBefRE, excMatchedWord).end() # where does the part start that is to be replaced?
-                        etgtEnd = etgtStart + trymatch(tgtRE, excMatchedWord[etgtStart:]).end()
+                        etgtStart, etgtEnd = excMatch.regs[etgtIndex]
                         
-                        if expos+excMatchStart+etgtStart == pos+envMatchStart+tgtStart: # if they both match the same thing
+                        if expos+etgtStart == tgtpos: # if they both match the same thing
                             excApplies = True
                             break
             
@@ -204,11 +195,12 @@ Exception may be an empty string."""
             
             word = word[:pos] + envMatchedWord[:tgtStart] + repword + envMatchedWord[tgtEnd:] + word[pos+envMatchEnd:]
             printDebug("applyRule", ("pos", pos), ("rule", rule), ("envMatchedWord", envMatchedWord), ("excMatchedWord", excMatchedWord), ("tgtStart", tgtStart), ("tgtEnd", tgtEnd),
-                       ("etgtStart", etgtStart), ("etgtEnd", etgtEnd), ("tgtWord", tgtWord), ("repword", repword), ("excApplies", excApplies), ("word", word), ("oldWord", oldWord), ("excptRE", excptRE))
+                       ("etgtStart", etgtStart), ("etgtEnd", etgtEnd), ("tgtWord", tgtWord), ("repword", repword), ("excApplies", excApplies), ("word", word), ("oldWord", oldWord))
             # move behind that which already has been processed
-            pos += len(repword) + (1 if isEpen else 0) # add 1 on epenthesis before something – else we’ll get caught in an endless loop
-        else:
-            pos += 1
+            tgtpos += len(repword) + (1 if isEpen else 0) # add 1 on epenthesis before something – else we’ll get caught in an endless loop
+        if tgtpos == pos: tgtpos += 1
+        printDebug("applyRule", ("pos", pos), ("tgtpos", tgtpos))
+        pos += 1
     return word
             
 
