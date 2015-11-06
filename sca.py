@@ -353,7 +353,7 @@ Returns a list of output strings according to the output format."""
                "{outw}{gloss} [{inw}]"]
         outFormat = ofs[outFormat]
         
-    return [outFormat.format(outw=unrew(outw, False), inw=unrew(inw, True), gloss=gloss) for inw, outw, gloss in transformed]
+    return [(outFormat.format(outw=unrew(outw, False), inw=unrew(inw, True), gloss=gloss) if any([unrew(inw, True), unrew(outw, True), gloss]) else "") for inw, outw, gloss in transformed]
 
 
 def printsca(categories, rules, words, outFormat=0, rewrites=[], rewOut=False, debug=False, file=sys.stdout):
