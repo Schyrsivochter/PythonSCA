@@ -25,12 +25,6 @@ class SCAError(Exception):
     "Error class for everything SCA-related (e.g. invalid rules or categories)"
     pass
 
-def trymatch(pattern, string, flags=0):
-    try:
-        return re.match(pattern, string, flags)
-    except:
-        return
-
 def printDebug(funcName, *args):
     if gdebug:
         print("\nDebug info from " + funcName + ":", file=sys.stderr)
@@ -159,7 +153,7 @@ Exception may be an empty string."""
     isEpen = not (tgtRE or envBefRE) # if rule is epenthesis before something
     while pos < len(word):
         oldWord = word
-        envMatch = trymatch(envmtRE, word[pos:])
+        envMatch = re.match(envmtRE, word[pos:])
         if envMatch:
             # find out about the environment
             envMatchEnd = envMatch.end()
@@ -180,7 +174,7 @@ Exception may be an empty string."""
             # find out about the exception, if there is one
             if exception:
                 for expos in range(len(word)):
-                    excMatch = trymatch(excptRE, word[expos:])
+                    excMatch = re.match(excptRE, word[expos:])
                     if excMatch:
                         excMatchEnd = excMatch.end()
                         excMatchedWord = excMatch.string[:excMatchEnd]
