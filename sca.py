@@ -184,8 +184,7 @@ Exception may be an empty string."""
                         excMatchedWord = excMatch.string[:excMatchEnd]
                         # then about the exception target
                         etgtStart, etgtEnd = excMatch.regs[etgtIndex]
-                        
-                        if expos+etgtStart == tgtpos: # if they both match the same thing
+                        if expos + etgtStart == tgtpos: # if they both match the same thing
                             excApplies = True
                             break
             
@@ -288,13 +287,12 @@ Arguments:
 Returns a list of output strings according to the output format."""
 
     global gdebug
-
     gdebug = debug
 
     # check and convert rewrites into a list
     rews = []
     for rule in rewrites:
-        if rule == "":
+        if rule.strip() == "":
             continue
         if rule.count("|") != 1:
             raise SCAError('Invalid rewrite rule: "' + rule + '" (must contain exactly one pipe)')
@@ -347,11 +345,12 @@ Returns a list of output strings according to the output format."""
     printDebug("sca",("words", words), ("rules", rules), ("categories", cats), ("rews", rews), ("transformed[0]", transformed[0] if transformed else None))
 
     # replace outFormat indices with format strings
-    if type(outFormat) == int:
-        ofs = ["{outw}{gloss}",
-               "{inw} \u2192 {outw}{gloss}",
-               "{outw}{gloss} [{inw}]"]
-        outFormat = ofs[outFormat]
+    if type(outFormat) is int:
+        outFormat = [
+            "{outw}{gloss}",
+            "{inw} \u2192 {outw}{gloss}",
+            "{outw}{gloss} [{inw}]"
+            ][outFormat]
         
     return [(outFormat.format(outw=unrew(outw, False), inw=unrew(inw, True), gloss=gloss) if any([unrew(inw, True), unrew(outw, True), gloss]) else "") for inw, outw, gloss in transformed]
 

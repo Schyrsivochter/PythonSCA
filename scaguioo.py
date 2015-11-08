@@ -20,7 +20,6 @@ Python re-code (C) 2015 Andreas Kübrich aka Schyrsivochter (andreas.kuebrich@ku
 import os, sys
 sys.path.append(os.path.dirname(__file__))
 import sca
-
 import tkinter as tk, tkinter.filedialog as filedialog, tkinter.messagebox as messagebox, tkinter.ttk as ttk
 import re, json
 
@@ -80,7 +79,7 @@ class SCATab:
         if exists:
             with open(scPath, encoding="utf8") as scFile:
                 scContent = scFile.read()
-            scContent = scContent.replace("\ufeff","", 1) # get rid of that BOM
+            scContent = scContent.replace("\ufeff", "", 1) # get rid of that BOM
             rews, cats, rules = map(lambda l: "\n".join(l), fromSC(scContent))
             self.rewTxt.replace("1.0", "end", rews.strip())
             self.catTxt.replace("1.0", "end", cats.strip())
@@ -93,24 +92,23 @@ class SCATab:
         if exists:
             with open(lexPath, encoding="utf8") as lexFile:
                 lexContent = lexFile.read()
-            lexContent = lexContent.replace("\ufeff","") # get rid of that BOM
+            lexContent = lexContent.replace("\ufeff", "", 1) # get rid of that BOM
             self.ilxTxt.replace("1.0", "end", lexContent.strip())
         return exists
 
     def setSCAConf(self, conf):
         "Set the tab contents to the settings in an sca.SCAConf object."
-        c = conf
-        self.rewTxt.replace("1.0", "end", "\n".join(c.rewrites))
-        self.catTxt.replace("1.0", "end", "\n".join(c.categories))
-        self.rulTxt.replace("1.0", "end", "\n".join(c.rules))
-        self.ilxTxt.replace("1.0", "end", "\n".join(c.inLex))
-        if type(c.outFormat) is int:
-            self.outFormat.set(c.outFormat)
+        self.rewTxt.replace("1.0", "end", "\n".join(conf.rewrites))
+        self.catTxt.replace("1.0", "end", "\n".join(conf.categories))
+        self.rulTxt.replace("1.0", "end", "\n".join(conf.rules))
+        self.ilxTxt.replace("1.0", "end", "\n".join(conf.inLex))
+        if type(conf.outFormat) is int:
+            self.outFormat.set(conf.outFormat)
         else:
             self.outFormat.set(3)
-            self.customFormat.set(c.outFormat)
-        self.debug.set(c.debug)
-        self.rewOut.set(c.rewOut)
+            self.customFormat.set(conf.outFormat)
+        self.debug.set(conf.debug)
+        self.rewOut.set(conf.rewOut)
 
     def getSCAConf(self):
         "Return an sca.SCAConf object with the tab contents."
@@ -138,8 +136,10 @@ class SCATab:
         for c in range(3): self.frm.grid_columnconfigure(c, weight=1, minsize=150)
         for c in range(3, 6): self.frm.grid_columnconfigure(c, weight=0, minsize=0)
         # rows 1 and 4 should resize
-        for r in [2, 3]: self.frm.grid_rowconfigure(r, weight=0)
-        for r in [1, 4]: self.frm.grid_rowconfigure(r, weight=1)
+        self.frm.grid_rowconfigure(1, weight=1)
+        self.frm.grid_rowconfigure(2, weight=0)
+        self.frm.grid_rowconfigure(3, weight=0)
+        self.frm.grid_rowconfigure(4, weight=1)
 
 
     def buildExpanded(self):
@@ -157,9 +157,10 @@ class SCATab:
         # all columns should resize
         for c in range(6): self.frm.grid_columnconfigure(c, weight=1, minsize=150)
         # row 2 should resize
-        for r in [1, 4]: self.frm.grid_rowconfigure(r, weight=0)
+        self.frm.grid_rowconfigure(1, weight=0)
         self.frm.grid_rowconfigure(2, weight=2)
         self.frm.grid_rowconfigure(3, weight=1)
+        self.frm.grid_rowconfigure(4, weight=0)
 
     def build(self, compact=True):
         "Arrange the tab contents either expanded (in one row, ideal for maximised view) or compact (in two rows, better for a small window)."
@@ -167,7 +168,8 @@ class SCATab:
         else:       self.buildExpanded()
         
         # all widgets should resize on row resize
-        for widget in self.frm.grid_slaves(): widget.grid_configure(sticky="nsew", padx=5)
+        for widget in self.frm.grid_slaves():
+            widget.grid_configure(sticky="nsew", padx=5)
         self.optLfm.grid_configure(pady=5)
         
     def make(self, compact=True):
@@ -362,7 +364,6 @@ class SCAWin:
         scaF = "{}/__last{}.sca"
         slxF = "{}/__last{}.slx"
         jsonPath = scaDir + "/__last.json"
-        files = os.listdir(scaDir)
 
         isMaximised = self.win.state() == "zoomed"
         if isMaximised:
@@ -373,7 +374,7 @@ class SCAWin:
             normalGeometry = self.win.geometry()
 
         # delete the .sca and .slx files
-        for filename in filter(lambda s: re.match("__last\\d*\\.s(ca|lx)", s), files):
+        for filename in filter(lambda s: re.match("__last\\d*\\.s(ca|lx)", s), os.listdir(scaDir)):
             os.remove(scaDir + "/" + filename)
                     
         # save each of the tabs in a .sca and a .slx file
@@ -401,7 +402,7 @@ class SCAWin:
                     "outLex": self.tabs[no].olxTxt.get("1.0", "end").splitlines(),
                     "lastSC": self.tabs[no].lastSC,
                     "lastLex": self.tabs[no].lastLex
-                } for no, conf in zip(range(len(self.tabs)), map(lambda t: t.getSCAConf(), self.tabs))
+                } for no, conf in enumerate(map(lambda t: t.getSCAConf(), self.tabs))
             ]
         }
 
