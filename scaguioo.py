@@ -48,7 +48,6 @@ class SCATab:
     "A tab of the PythonSCA GUI application."
 
     lastLex = ""
-
     lastSC = ""
 
     def applyRules(self):
@@ -60,9 +59,9 @@ class SCATab:
 
     def saveSC(self, scPath):
         "Save the rewrites, categories and rules to a file."
-        rews  = self.rewTxt.get("1.0","end").splitlines()
-        cats  = self.catTxt.get("1.0","end").splitlines()
-        rules = self.rulTxt.get("1.0","end").splitlines()
+        rews  = self.rewTxt.get("1.0","end").strip().splitlines()
+        cats  = self.catTxt.get("1.0","end").strip().splitlines()
+        rules = self.rulTxt.get("1.0","end").strip().splitlines()
         scContent = toSC(rews, cats, rules)
         with open(scPath, mode=("w" if os.path.isfile(scPath) else "x"), encoding="utf8") as scFile:
             scFile.write(scContent)
@@ -115,10 +114,10 @@ class SCATab:
         c = sca.SCAConf(rewOut=self.rewOut.get(), debug=self.debug.get())
         of = self.outFormat.get()
         c.outFormat = of if of != 3 else self.customFormat.get()
-        c.rewrites = self.rewTxt.get("1.0", "end").strip().splitlines()
+        c.rewrites   = self.rewTxt.get("1.0", "end").strip().splitlines()
         c.categories = self.catTxt.get("1.0", "end").strip().splitlines()
-        c.rules = self.rulTxt.get("1.0", "end").strip().splitlines()
-        c.inLex = self.ilxTxt.get("1.0", "end").strip().splitlines()
+        c.rules      = self.rulTxt.get("1.0", "end").strip().splitlines()
+        c.inLex      = self.ilxTxt.get("1.0", "end").strip().splitlines()
         return c
 
     def buildCompact(self):
@@ -140,6 +139,16 @@ class SCATab:
         self.frm.grid_rowconfigure(2, weight=0)
         self.frm.grid_rowconfigure(3, weight=0)
         self.frm.grid_rowconfigure(4, weight=1)
+        
+        # all widgets should resize on row resize
+        for widget in self.frm.grid_slaves():
+            widget.grid_configure(sticky="nsew", padx=5)
+        self.optLfm.grid_configure(pady=5)
+
+        # pack the options into the options panel
+        for optWidget in [self.ofmLbl, self.ofmRb1, self.ofmRb2, self.ofmRb3, self.ofmRb4, self.ofmEnt, self.reoChk, self.debChk]:
+            optWidget.pack(padx=5, anchor="nw", expand=True)
+        self.ofmEnt.pack_configure(fill="x", padx=20) # a bit offset
 
 
     def buildExpanded(self):
@@ -161,16 +170,21 @@ class SCATab:
         self.frm.grid_rowconfigure(2, weight=2)
         self.frm.grid_rowconfigure(3, weight=1)
         self.frm.grid_rowconfigure(4, weight=0)
-
-    def build(self, compact=True):
-        "Arrange the tab contents either expanded (in one row, ideal for maximised view) or compact (in two rows, better for a small window)."
-        if compact: self.buildCompact()
-        else:       self.buildExpanded()
         
         # all widgets should resize on row resize
         for widget in self.frm.grid_slaves():
             widget.grid_configure(sticky="nsew", padx=5)
         self.optLfm.grid_configure(pady=5)
+
+        # pack the options into the options panel
+        for optWidget in [self.ofmLbl, self.ofmRb1, self.ofmRb2, self.ofmRb3, self.ofmRb4, self.ofmEnt, self.reoChk, self.debChk]:
+            optWidget.pack(padx=5, anchor="nw", expand=True)
+        self.ofmEnt.pack_configure(fill="x", padx=20) # a bit offset
+
+    def build(self, compact=True):
+        "Arrange the tab contents either expanded (in one row, ideal for maximised view) or compact (in two rows, better for a small window)."
+        if compact: self.buildCompact()
+        else:       self.buildExpanded()
         
     def make(self, compact=True):
         "Build the GUI of the tab and arrange them either expanded (in one row, ideal for maximised view) or compact (in two rows, better for a small window)."
@@ -208,14 +222,9 @@ class SCATab:
         self.reoChk = ttk.Checkbutton(self.optLfm, text="Rewrite on output",   variable=self.rewOut)
         self.debChk = ttk.Checkbutton(self.optLfm, text="Debug",               variable=self.debug, state="disabled")
 
-        self.ofmEnt.bind("<FocusIn>", lambda e: self.outFormat.set(3))
+        self.ofmEnt.bind("<FocusIn>", lambda e: self.outFormat.set(3)) # check ‘Custom’ if custom format Entry gets the focus
 
         self.build(compact)
-
-        # pack the options into the options panel
-        for optWidget in [self.ofmLbl, self.ofmRb1, self.ofmRb2, self.ofmRb3, self.ofmRb4, self.ofmEnt, self.reoChk, self.debChk]:
-            optWidget.pack(padx=5, anchor="nw", expand=True)
-        self.ofmEnt.pack_configure(fill="x", padx=20) # a bit offset
 
     def __init__(self, master=None, conf=None, compact=True):
         self.frm = ttk.Frame(master)
@@ -244,35 +253,40 @@ class SCAWin:
         return self.tabs[self.notebook.index("current")]
 
     def askSaveSC(self):
-        scPath = filedialog.asksaveasfilename(defaultextension="sca", filetypes=self.scTypes, initialfile=self.curTab().lastSC)
+        tab = self.curTab()
+        scPath = filedialog.asksaveasfilename(defaultextension="sca", filetypes=self.scTypes, initialfile=tab.lastSC)
         if scPath:
-            self.curTab().saveSC(scPath)
-            self.curTab().lastSC = scPath
+            tab.saveSC(scPath)
+            tab.lastSC = scPath
 
     def askSaveLex(self):
-        lexPath = filedialog.asksaveasfilename(defaultextension="slx", filetypes=self.lexTypes, initialfile=self.curTab().lastLex)
+        tab = self.curTab()
+        lexPath = filedialog.asksaveasfilename(defaultextension="slx", filetypes=self.lexTypes, initialfile=tab.lastLex)
         if lexPath:
-            self.curTab().saveLex(lexPath)
-            self.curTab().lastLex = lexPath
+            tab.saveLex(lexPath)
+            tab.lastLex = lexPath
 
     def askSaveOut(self):
-        lexPath = filedialog.asksaveasfilename(defaultextension="slx", filetypes=self.lexTypes, initialdir=os.path.dirname(self.curTab().lastLex))
+        tab = self.curTab()
+        lexPath = filedialog.asksaveasfilename(defaultextension="slx", filetypes=self.lexTypes, initialdir=os.path.dirname(tab.lastLex))
         if lexPath:
-            lexContent = self.curTab().olxTxt.get("1.0","end")
+            lexContent = tab.olxTxt.get("1.0","end")
             with open(lexPath, mode=("w" if os.path.isfile(lexPath) else "x"), encoding="utf8") as lexFile:
                 lexFile.write(lexContent)
 
     def askOpenSC(self):
-        scPath = filedialog.askopenfilename(filetypes=self.scTypes, initialfile=self.curTab().lastSC)
+        tab = self.curTab()
+        scPath = filedialog.askopenfilename(filetypes=self.scTypes, initialfile=tab.lastSC)
         if scPath:
-            self.curTab().loadSC(scPath)
-            self.curTab().lastSC = scPath
+            tab.loadSC(scPath)
+            tab.lastSC = scPath
 
     def askOpenLex(self):
-        lexPath = filedialog.askopenfilename(filetypes=self.lexTypes, initialfile=self.curTab().lastLex)
+        tab = self.curTab()
+        lexPath = filedialog.askopenfilename(filetypes=self.lexTypes, initialfile=tab.lastLex)
         if lexPath:
-            self.curTab().loadLex(lexPath)
-            self.curTab().lastLex = lexPath
+            tab.loadLex(lexPath)
+            tab.lastLex = lexPath
 
     def clearRules(self):
         "Clear the rewrites, categories and rules fields of the current tab."
@@ -308,7 +322,7 @@ class SCAWin:
         "Open a modal dialog for renaming tab."
         if self.tabs:
             renDlg = tk.Toplevel()
-            renDlg.grab_set()
+            renDlg.grab_set() # make the dialog modal, i.e. main window cannot get focus
             renDlg.minsize(200, 100)
             renLbl = ttk.Label(renDlg, text="Enter new name:")
             renEnt = ttk.Entry(renDlg)
@@ -335,7 +349,7 @@ class SCAWin:
     def moveTabRight(self, tabid):
         "Swap tab with its right neighbour."
         no = self.notebook.index(tabid)
-        if no < len(self.tabs)-1:
+        if no < len(self.tabs) - 1:
             self.notebook.insert(no+1, no)
             self.tabs[no], self.tabs[no+1] = self.tabs[no+1], self.tabs[no]
 
