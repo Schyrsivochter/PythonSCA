@@ -348,17 +348,23 @@ class SCAWin:
 
     def moveTabRight(self, tabid):
         "Swap tab with its right neighbour."
-        no = self.notebook.index(tabid)
-        if no < len(self.tabs) - 1:
-            self.notebook.insert(no+1, no)
-            self.tabs[no], self.tabs[no+1] = self.tabs[no+1], self.tabs[no]
+        tabid = self.notebook.index(tabid)
+        if tabid < len(self.tabs) - 1:
+            self.notebook.insert(tabid+1, tabid)
+            self.tabs[tabid], self.tabs[tabid+1] = self.tabs[tabid+1], self.tabs[tabid]
+        else:
+            self.notebook.insert(0, tabid)
+            self.tabs = [tabid] + self.tabs[:-1]
 
     def moveTabLeft(self, tabid):
         "Swap tab with its left neighbour."
-        no = self.notebook.index(tabid)
-        if no > 0:
-            self.notebook.insert(no-1, no)
-            self.tabs[no], self.tabs[no-1] = self.tabs[no-1], self.tabs[no]
+        tabid = self.notebook.index(tabid)
+        if tabid > 0:
+            self.notebook.insert(tabid-1, tabid)
+            self.tabs[tabid], self.tabs[tabid-1] = self.tabs[tabid-1], self.tabs[tabid]
+        else:
+            self.notebook.insert("end", tabid)
+            self.tabs = self.tabs[1:] + [tabid]
 
     def newTabMenu(self, tabid):
         "Create a new popup menu for tab."
