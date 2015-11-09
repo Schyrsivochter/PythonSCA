@@ -384,6 +384,8 @@ class SCAWin:
         scaF = "{}/__last{}.sca"
         slxF = "{}/__last{}.slx"
         jsonPath = scaDir + "/__last.json"
+        if not os.path.exists(scaDir):
+            os.mkdir(scaDir)
 
         isMaximised = self.win.state() == "zoomed"
         if isMaximised:
