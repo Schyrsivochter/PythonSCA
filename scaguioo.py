@@ -530,6 +530,8 @@ Does not build any tabs or tab contents; that’s the task of newTab() and, ulti
         self.win.bind("<Control-w>", lambda e: self.closeTab("current"))
         self.win.bind("<Control-Prior>", self.onSwitchLeft)
         self.win.bind("<Control-Next>", self.onSwitchRight)
+        self.win.bind("<Control-Alt-Prior>", lambda e: self.moveTabLeft("current"))
+        self.win.bind("<Control-Alt-Next>", lambda e: self.moveTabRight("current"))
         self.win.bind("<Configure>", self.onResize)
         self.win.protocol("WM_DELETE_WINDOW", self.onClose)
 
