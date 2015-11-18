@@ -190,17 +190,17 @@ class SCATab:
         "Build the GUI of the tab and arrange them either expanded (in one row, ideal for maximised view) or compact (in two rows, better for a small window)."
         # first two rows
         self.rewLbl = ttk.Label(self.frm, text="Rewrite rules")
-        self.rewTxt =  tk.Text(self.frm, borderwidth=1, relief="solid", font="consolas 10")
+        self.rewTxt =  tk.Text(self.frm, borderwidth=1, relief="solid", font="consolas 10", undo=True)
         self.catLbl = ttk.Label(self.frm, text="Categories")
-        self.catTxt =  tk.Text(self.frm, borderwidth=1, relief="solid", font="consolas 10")
+        self.catTxt =  tk.Text(self.frm, borderwidth=1, relief="solid", font="consolas 10", undo=True)
         self.rulLbl = ttk.Label(self.frm, text="Sound changes")
-        self.rulTxt =  tk.Text(self.frm, borderwidth=1, relief="solid", font="consolas 10")
+        self.rulTxt =  tk.Text(self.frm, borderwidth=1, relief="solid", font="consolas 10", undo=True)
 
         # last rows
         self.optLfm = ttk.LabelFrame(self.frm, text="Options", borderwidth=2, relief="groove")
         self.appBtn = ttk.Button(self.frm, text="Apply", command=self.applyRules)
         self.ilxLbl = ttk.Label(self.frm, text="Input lexicon")
-        self.ilxTxt =  tk.Text(self.frm, borderwidth=1, relief="solid", font="consolas 10")
+        self.ilxTxt =  tk.Text(self.frm, borderwidth=1, relief="solid", font="consolas 10", undo=True)
         self.olxLbl = ttk.Label(self.frm, text="Output lexicon")
         self.olxTxt =  tk.Text(self.frm, borderwidth=1, relief="flat",  font="consolas 10", state="disabled")
 
