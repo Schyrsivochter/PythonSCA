@@ -440,10 +440,11 @@ class SCAWin:
         if b == 1: return # left button does nothing
         try:
             tabClicked = self.notebook.index("@{},{}".format(x, y))
+            isTab = True
         except tk.TclError:
             tabClicked = -1
+            isTab = False
         isTabBar = y < 21
-        isTab = tabClicked > -1
         if b == 2 and isTabBar: # tab bar or tab middle clicked
             if isTab:
                 self.closeTab(tabClicked)
