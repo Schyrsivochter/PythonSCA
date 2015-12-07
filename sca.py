@@ -319,7 +319,7 @@ Returns a list of output strings according to the output format."""
     exRules = []
     for rule in rules:
         rule = rew(rule, False)
-        if rule == "":
+        if rule == "" or rule[0] == "*": # empty or comment
             continue
         rule = rule.replace("\u2192", "/")
         # append a / to all rules that don’t have an exception
