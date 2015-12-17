@@ -7,4 +7,4 @@ __last*
 # the __pycache__ folder
 /__pycache__
 
-xd
+*.geany
