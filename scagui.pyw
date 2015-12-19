@@ -12,14 +12,14 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 SCA² (C) 2012 Mark Rosenfelder aka Zompist (markrose@zompist.com)
 Python re-code (C) 2015 Andreas Kübrich aka Schyrsivochter (andreas.kuebrich@kuebrich.de)"""
 
 
 import os, sys
 sys.path.append(os.path.dirname(__file__))
-import scaguioo
+import scaguiootk
 
-scaWin = scaguioo.SCAWin()
+scaWin = scaguiootk.SCAWin()
 scaWin.mainloop()
