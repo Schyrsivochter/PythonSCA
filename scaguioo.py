@@ -123,36 +123,6 @@ class SCATab:
         c.inLex      = self.ilxTxt.GetValue().strip().splitlines()
         return c
 
-    def tkbuildCompact(self):
-        "Arrange the contents in compact view (in two rows, better for a small window)."
-        for widget in self.frm.grid_slaves():
-            widget.grid_forget()
-
-        self.rewLbl.grid(column=0, row=0           ); self.catLbl.grid(column=1, row=0           ); self.rulLbl.grid(column=2, row=0)
-        self.rewTxt.grid(column=0, row=1           ); self.catTxt.grid(column=1, row=1           ); self.rulTxt.grid(column=2, row=1)
-        self.optLfm.grid(column=0, row=2, rowspan=2); self.ilxLbl.grid(column=1, row=2           ); self.olxLbl.grid(column=2, row=2)
-        pass;                                         self.ilxTxt.grid(column=1, row=3, rowspan=2); self.olxTxt.grid(column=2, row=3, rowspan=2)
-        self.appBtn.grid(column=0, row=4, pady=5);
-
-        # all columns should resize
-        for c in range(3): self.frm.grid_columnconfigure(c, weight=1, minsize=150)
-        for c in range(3, 6): self.frm.grid_columnconfigure(c, weight=0, minsize=0)
-        # rows 1 and 4 should resize
-        self.frm.grid_rowconfigure(1, weight=1)
-        self.frm.grid_rowconfigure(2, weight=0)
-        self.frm.grid_rowconfigure(3, weight=0)
-        self.frm.grid_rowconfigure(4, weight=1)
-
-        # all widgets should resize on row resize
-        for widget in self.frm.grid_slaves():
-            widget.grid_configure(sticky="nsew", padx=5)
-        self.optLfm.grid_configure(pady=5)
-
-        # pack the options into the options panel
-        for optWidget in [self.ofmLbl, self.ofmRb1, self.ofmRb2, self.ofmRb3, self.ofmRb4, self.ofmEnt, self.reoChk, self.debChk]:
-            optWidget.pack(padx=5, anchor="nw", expand=True)
-        self.ofmEnt.pack_configure(fill="x", padx=20) # a bit offset
-
     def arrangeCompact(self):
         self.frm.SetSizer(wx.GridBagSizer(vgap=0, hgap=10))
         sz = self.frm.Sizer
@@ -165,7 +135,7 @@ class SCATab:
             ([self.catTxt, (1, 1)], {"flag": wx.EXPAND}),
             ([self.rulTxt, (1, 2)], {"flag": wx.EXPAND}),
             ([oasz,        (2, 0)], {"flag": wx.EXPAND|wx.TOP|wx.BOTTOM,
-                                     "span": (2, 1),
+                                     "span": wx.GBSpan(2, 1),
                                      "border": 5}),
             ([self.ilxLbl, (2, 1)], {"flag": wx.EXPAND}),
             ([self.olxLbl, (2, 2)], {"flag": wx.EXPAND}),
@@ -174,6 +144,9 @@ class SCATab:
         ]
         for args, kwargs in szOpts:
             sz.Add(*args, **kwargs)
+        for widget in [self.rewTxt, self.catTxt, self.rulTxt,
+                       self.ilxTxt, self.olxTxt, oasz]:
+            widget.SetMinSize(wx.Size(140, 224))
 
         # all columns should resize
         for c in range(3): sz.AddGrowableCol(c, proportion=1)
@@ -521,15 +494,15 @@ class SCAWin:
 
     def onResize(self, event):
         "Event handler for resizing the window."
-        #~ willCompact = self.win.Size.Width < 910
-        #~ if self.isCompact != willCompact:
-            #~ for tab in self.tabs:
-                #~ tab.build(willCompact)
-            #~ self.isCompact = willCompact
-        #~ if self.isCompact:
-            #~ self.win.SetMinSize(wx.Size(460, 522))
-        #~ else:
-            #~ self.win.SetMinSize(wx.Size(460, 266))
+        willCompact = self.win.Size.Width < 910
+        if self.isCompact != willCompact:
+            for tab in self.tabs:
+                tab.build(willCompact)
+            self.isCompact = willCompact
+        if self.isCompact:
+            self.win.SetMinSize(wx.Size(474, 567))
+        else:
+            self.win.SetMinSize(wx.Size(474, 567))
         event.Skip()
 
     def onSwitchRight(self, event):
