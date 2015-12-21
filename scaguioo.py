@@ -126,7 +126,6 @@ class SCATab:
     def arrangeCompact(self):
         self.frm.SetSizer(wx.GridBagSizer(vgap=0, hgap=10))
         sz = self.frm.Sizer
-        oasz = wx.BoxSizer(wx.VERTICAL)
         szOpts = [
             ([self.rewLbl, (0, 0)], {"flag": wx.EXPAND}),
             ([self.catLbl, (0, 1)], {"flag": wx.EXPAND}),
@@ -134,36 +133,42 @@ class SCATab:
             ([self.rewTxt, (1, 0)], {"flag": wx.EXPAND}),
             ([self.catTxt, (1, 1)], {"flag": wx.EXPAND}),
             ([self.rulTxt, (1, 2)], {"flag": wx.EXPAND}),
-            ([oasz,        (2, 0)], {"flag": wx.EXPAND|wx.TOP|wx.BOTTOM,
+            ([self.optBox, (2, 0)], {"flag": wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT,
                                      "span": wx.GBSpan(2, 1),
                                      "border": 5}),
             ([self.ilxLbl, (2, 1)], {"flag": wx.EXPAND}),
             ([self.olxLbl, (2, 2)], {"flag": wx.EXPAND}),
-            ([self.ilxTxt, (3, 1)], {"flag": wx.EXPAND}),
-            ([self.olxTxt, (3, 2)], {"flag": wx.EXPAND})
+            ([self.ilxTxt, (3, 1)], {"flag": wx.EXPAND,
+                                     "span": wx.GBSpan(2, 1)}),
+            ([self.olxTxt, (3, 2)], {"flag": wx.EXPAND,
+                                     "span": wx.GBSpan(2, 1)}),
+            ([self.appBtn, (4, 0)], {"flag": wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT,
+                                     "border": 5})
         ]
         for args, kwargs in szOpts:
             sz.Add(*args, **kwargs)
         for widget in [self.rewTxt, self.catTxt, self.rulTxt,
-                       self.ilxTxt, self.olxTxt, oasz]:
+                       self.ilxTxt, self.olxTxt]:
             widget.SetMinSize(wx.Size(140, 224))
 
         # all columns should resize
         for c in range(3): sz.AddGrowableCol(c, proportion=1)
         # rows 1 and 4 should resize
         sz.AddGrowableRow(1, proportion=1)
-        sz.AddGrowableRow(3, proportion=1)
+        sz.AddGrowableRow(4, proportion=1)
 
-        # pack the options panel and the Apply button into their sizer
-        oasz.Add(self.optBox, flag=wx.EXPAND)
-        oasz.Add(self.appBtn, flag=wx.EXPAND, proportion=1)
         # pack the options into the options panel
-        self.optBox.SetSizer(wx.BoxSizer(wx.VERTICAL))
-        for optWidget in self.optBox.GetChildren():
-            self.optBox.Sizer.Add(optWidget, flag=wx.EXPAND)
-        szOfmEnt = self.optBox.Sizer.GetItem(self.ofmEnt)
-        szOfmEnt.SetBorder(20)
-        szOfmEnt.SetFlag(wx.EXPAND|wx.LEFT|wx.RIGHT) # a bit offset
+        # use a Sizer inside a Sizer because border
+        self.optBox.SetSizer(wx.BoxSizer())
+        self.optSiz = wx.BoxSizer(wx.VERTICAL)
+        self.optBox.Sizer.Add(self.optSiz, flag=wx.ALL, border=10)
+        for optWidget in ([wx.Size(0, 5)] +
+                          list(self.optBox.GetChildren()) +
+                          [wx.Size(0, 5)]):
+            self.optSiz.Add(optWidget, flag=wx.EXPAND|wx.BOTTOM,
+                                  border=5)
+        szOfmEnt = self.optSiz.GetItem(self.ofmEnt)
+        szOfmEnt.SetFlag(wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT) # a bit offset
 
     def tkbuildExpanded(self):
         "Arrange the contents in expanded view (in one row, ideal for maximised view)."
@@ -198,11 +203,6 @@ class SCATab:
     def arrangeExpanded(self):
         ...
 
-    def arrange(self, compact=True):
-        #if compact:
-            self.arrangeCompact()
-        #else:
-            #self.arrangeExpanded()
 
     def build(self, compact=True):
         """Build the GUI of the tab and arrange them either expanded (in
@@ -249,12 +249,16 @@ small window).
         # check ‘Custom’ if custom format Entry gets the focus
         self.ofmEnt.Bind(wx.EVT_SET_FOCUS, lambda e: self.ofmRb4.SetValue(True))
 
-        self.arrange(compact)
+        if compact:
+            self.arrangeCompact()
+        else:
+            self.arrangeExpanded()
 
     def __init__(self, master=None, conf=None, compact=True):
         self.frm = wx.Panel(master.notebook)
         #Tk self.frm.configure(padding=5)
-        self.build(compact)
+        ##self.build(compact)
+        self.build(True)
         if conf is not None:
             self.setSCAConf(conf)
 
@@ -500,9 +504,9 @@ class SCAWin:
                 tab.build(willCompact)
             self.isCompact = willCompact
         if self.isCompact:
-            self.win.SetMinSize(wx.Size(474, 567))
+            self.win.SetMinSize(wx.Size(474, 572))
         else:
-            self.win.SetMinSize(wx.Size(474, 567))
+            self.win.SetMinSize(wx.Size(474, 572))
         event.Skip()
 
     def onSwitchRight(self, event):
@@ -602,7 +606,8 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
                 jso = json.load(jsonFile)
             # restore everything from the .json file
             self.win.SetRect(jso["rect"])
-            if jso["isMaximised"]: self.win.SetWindowStyle(self.win.WindowStyle | wx.MAXIMIZE)
+            if jso["isMaximised"]:
+                self.win.SetWindowStyle(self.win.WindowStyle|wx.MAXIMIZE)
             for tabJSO in jso["tabs"]:
                 # make a new tab
                 self.newTab()
@@ -611,7 +616,9 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
                 # load the tab options
                 self.notebook.SetPageText(no, tabJSO["name"])
                 tabConf = sca.SCAConf(
-                    outFormat = tabJSO["outFormat"] if tabJSO["outFormat"] != 3 else tabJSO["customFormat"],
+                    outFormat = (tabJSO["outFormat"]
+                                 if tabJSO["outFormat"] != 3
+                                 else tabJSO["customFormat"]),
                     rewOut = tabJSO["rewOut"],
                     debug = tabJSO["debug"],
                     rewrites = tabJSO["rewrites"],
