@@ -129,10 +129,9 @@ class SCATab:
         return c
 
     def arrangeCompact(self):
-        newSizer = self.frm.Sizer is None
-        if newSizer:
-            self.frm.SetSizer(wx.GridBagSizer(vgap=0, hgap=10))
+        self.frm.SetSizer(wx.GridBagSizer(vgap=0, hgap=10), deleteOld=True)
         sz = self.frm.Sizer
+        sz.SetEmptyCellSize(wx.Size(0, 0))
         szOpts = [
             ([self.rewLbl, (0, 0)], {"flag": wx.EXPAND}),
             ([self.catLbl, (0, 1)], {"flag": wx.EXPAND}),
@@ -141,14 +140,11 @@ class SCATab:
             ([self.catTxt, (1, 1)], {"flag": wx.EXPAND}),
             ([self.rulTxt, (1, 2)], {"flag": wx.EXPAND}),
             ([self.optBox, (2, 0)], {"flag": wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT,
-                                     "span": wx.GBSpan(2, 1),
-                                     "border": 5}),
+                                     "span": (2, 1), "border": 5}),
             ([self.ilxLbl, (2, 1)], {"flag": wx.EXPAND}),
             ([self.olxLbl, (2, 2)], {"flag": wx.EXPAND}),
-            ([self.ilxTxt, (3, 1)], {"flag": wx.EXPAND,
-                                     "span": wx.GBSpan(2, 1)}),
-            ([self.olxTxt, (3, 2)], {"flag": wx.EXPAND,
-                                     "span": wx.GBSpan(2, 1)}),
+            ([self.ilxTxt, (3, 1)], {"flag": wx.EXPAND, "span": (2, 1)}),
+            ([self.olxTxt, (3, 2)], {"flag": wx.EXPAND, "span": (2, 1)}),
             ([self.appBtn, (4, 0)], {"flag": wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT,
                                      "border": 5})
         ]
@@ -158,12 +154,11 @@ class SCATab:
                        self.ilxTxt, self.olxTxt]:
             widget.SetMinSize(wx.Size(140, 224))
 
-        if newSizer:
-            # all columns should resize
-            for c in range(3): sz.AddGrowableCol(c, proportion=1)
-            # rows 1 and 4 should resize
-            sz.AddGrowableRow(1, proportion=1)
-            sz.AddGrowableRow(4, proportion=1)
+        # all columns should resize
+        for c in range(3): sz.AddGrowableCol(c, proportion=1)
+        # rows 1 and 4 should resize
+        sz.AddGrowableRow(1, proportion=1)
+        sz.AddGrowableRow(4, proportion=1)
 
         # pack the options into the options panel
         # use a Sizer inside a Sizer because border
@@ -178,41 +173,52 @@ class SCATab:
         szOfmEnt = self.optSiz.GetItem(self.ofmEnt)
         szOfmEnt.SetFlag(wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT) # a bit offset
 
-    def tkbuildExpanded(self):
-        "Arrange the contents in expanded view (in one row, ideal for \
-maximised view)."
-        for widget in self.frm.grid_slaves():
-            widget.grid_forget()
+    def arrangeExpanded(self):
+        self.frm.SetSizer(wx.GridBagSizer(vgap=0, hgap=10), deleteOld=True)
+        sz = self.frm.Sizer
+        sz.SetEmptyCellSize(wx.Size(0, 0))
+        szOpts = [
+            ([self.optBox, (0, 0)], {"flag": wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT,
+                                     "span": wx.GBSpan(2, 1), "border": 5}),
+            ([self.rewLbl, (0, 1)], {"flag": wx.EXPAND}),
+            ([self.catLbl, (0, 2)], {"flag": wx.EXPAND}),
+            ([self.rulLbl, (0, 3)], {"flag": wx.EXPAND}),
+            ([self.ilxLbl, (0, 4)], {"flag": wx.EXPAND}),
+            ([self.olxLbl, (0, 5)], {"flag": wx.EXPAND}),
+            ([self.rewTxt, (1, 1)], {"flag": wx.EXPAND, "span": (3, 1)}),
+            ([self.catTxt, (1, 2)], {"flag": wx.EXPAND, "span": (3, 1)}),
+            ([self.rulTxt, (1, 3)], {"flag": wx.EXPAND, "span": (3, 1)}),
+            ([self.ilxTxt, (1, 4)], {"flag": wx.EXPAND, "span": (3, 1)}),
+            ([self.olxTxt, (1, 5)], {"flag": wx.EXPAND, "span": (3, 1)}),
+            ([self.appBtn, (3, 0)], {"flag": wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT,
+                                     "border": 5})
+        ]
+        for args, kwargs in szOpts:
+            sz.Add(*args, **kwargs)
+        for widget in [self.rewTxt, self.catTxt, self.rulTxt,
+                       self.ilxTxt, self.olxTxt]:
+            widget.SetMinSize(wx.Size(140, 224))
 
-        self.optLfm.grid(column=0, row=0, rowspan=2); self.rewLbl.grid(column=1, row=0           ); self.catLbl.grid(column=2, row=0           );
-        pass;                                         self.rewTxt.grid(column=1, row=1, rowspan=3); self.catTxt.grid(column=2, row=1, rowspan=3);
-        self.appBtn.grid(column=0, row=3, pady=5);
-
-        self.rulLbl.grid(column=3, row=0           ); self.ilxLbl.grid(column=4, row=0           ); self.olxLbl.grid(column=5, row=0           );
-        self.rulTxt.grid(column=3, row=1, rowspan=3); self.ilxTxt.grid(column=4, row=1, rowspan=3); self.olxTxt.grid(column=5, row=1, rowspan=3);
-
-        # all columns should resize
-        for c in range(6): self.frm.grid_columnconfigure(c, weight=1, minsize=150)
-        # row 2 should resize
-        self.frm.grid_rowconfigure(1, weight=0)
-        self.frm.grid_rowconfigure(2, weight=2)
-        self.frm.grid_rowconfigure(3, weight=1)
-        self.frm.grid_rowconfigure(4, weight=0)
-
-        # all widgets should resize on row resize
-        for widget in self.frm.grid_slaves():
-            widget.grid_configure(sticky="nsew", padx=5)
-        self.optLfm.grid_configure(pady=5)
+        # all columns except the first should resize
+        for c in range(1, 6): sz.AddGrowableCol(c, proportion=1)
+        # rows 2 and 3 should resize
+        sz.AddGrowableRow(2, proportion=2)
+        sz.AddGrowableRow(3, proportion=1)
 
         # pack the options into the options panel
-        for optWidget in [self.ofmLbl, self.ofmRb1, self.ofmRb2, self.ofmRb3, self.ofmRb4, self.ofmEnt, self.reoChk, self.debChk]:
-            optWidget.pack(padx=5, anchor="nw", expand=True)
-        self.ofmEnt.pack_configure(fill="x", padx=20) # a bit offset
+        # use a Sizer inside a Sizer because border
+        self.optBox.SetSizer(wx.BoxSizer())
+        self.optSiz = wx.BoxSizer(wx.VERTICAL)
+        self.optBox.Sizer.Add(self.optSiz, flag=wx.ALL, border=10)
+        for optWidget in ([wx.Size(0, 5)] +
+                          list(self.optBox.GetChildren()) +
+                          [wx.Size(0, 5)]):
+            self.optSiz.Add(optWidget, flag=wx.EXPAND|wx.BOTTOM,
+                                  border=5)
+        szOfmEnt = self.optSiz.GetItem(self.ofmEnt)
+        szOfmEnt.SetFlag(wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT) # a bit offset
 
-    def arrangeExpanded(self):
-        ...
-
-    def arrange(self, compact=True):
+    def arrange(self, compact):
         if compact:
             self.arrangeCompact()
         else:
@@ -267,8 +273,7 @@ small window).
 
     def __init__(self, master=None, conf=None, compact=True):
         self.frm = wx.Panel(master.notebook)
-        ##self.build(compact)
-        self.build(True)
+        self.build(compact)
         if conf is not None:
             self.setSCAConf(conf)
 
@@ -510,16 +515,12 @@ class SCAWin:
         willCompact = self.win.Size.Width < 910
         if self.isCompact != willCompact:
             for tab in self.tabs:
-                # get rid of the old layout
-                tab.frm.Sizer.Clear()
-                ##tab.build(willCompact)
-                tab.arrange(True)
+                tab.arrange(willCompact)
             self.isCompact = willCompact
         if self.isCompact:
             self.win.SetMinSize(wx.Size(474, 572))
         else:
-            ##self.win.SetMinSize(wx.Size(..., ...)) # expanded
-            self.win.SetMinSize(wx.Size(474, 572))
+            self.win.SetMinSize(wx.Size(474, 406))
         event.Skip()
 
     def onSwitchRight(self, event):
