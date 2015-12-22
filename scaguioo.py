@@ -212,6 +212,11 @@ maximised view)."
     def arrangeExpanded(self):
         ...
 
+    def arrange(self, compact=True):
+        if compact:
+            self.arrangeCompact()
+        else:
+            self.arrangeExpanded()
 
     def build(self, compact=True):
         """Build the GUI of the tab and arrange them either expanded (in
@@ -258,10 +263,7 @@ small window).
         # check ‘Custom’ if custom format Entry gets the focus
         self.ofmEnt.Bind(wx.EVT_SET_FOCUS, lambda e: self.ofmRb4.SetValue(True))
 
-        if compact:
-            self.arrangeCompact()
-        else:
-            self.arrangeExpanded()
+        self.arrange(compact)
 
     def __init__(self, master=None, conf=None, compact=True):
         self.frm = wx.Panel(master.notebook)
@@ -509,9 +511,9 @@ class SCAWin:
         if self.isCompact != willCompact:
             for tab in self.tabs:
                 # get rid of the old layout
-                tab.frm.Sizer.Clear(delete_windows=True)
+                tab.frm.Sizer.Clear()
                 ##tab.build(willCompact)
-                tab.build(True)
+                tab.arrange(True)
             self.isCompact = willCompact
         if self.isCompact:
             self.win.SetMinSize(wx.Size(474, 572))
