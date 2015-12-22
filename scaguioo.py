@@ -61,13 +61,15 @@ class SCATab:
         cats  = self.catTxt.GetValue().strip().splitlines()
         rules = self.rulTxt.GetValue().strip().splitlines()
         scContent = toSC(rews, cats, rules)
-        with open(scPath, mode=("w" if os.path.isfile(scPath) else "x"), encoding="utf8") as scFile:
+        with open(scPath, mode=("w" if os.path.isfile(scPath) else "x"),
+                  encoding="utf8") as scFile:
             scFile.write(scContent)
 
     def saveLex(self, lexPath):
         "Save the input lexicon to a file."
         lexContent = self.ilxTxt.GetValue().strip()
-        with open(lexPath, mode=("w" if os.path.isfile(lexPath) else "x"), encoding="utf8") as lexFile:
+        with open(lexPath, mode=("w" if os.path.isfile(lexPath) else "x"),
+                  encoding="utf8") as lexFile:
             lexFile.write(lexContent)
 
     def loadSC(self, scPath):
@@ -113,7 +115,10 @@ class SCATab:
         "Return an sca.SCAConf object with the tab contents."
         c = sca.SCAConf()
         ofms = [self.ofmRb1, self.ofmRb2, self.ofmRb3, self.ofmRb4]
-        of = list(map(wx.RadioButton.GetValue, ofms)).index(True)
+        try:
+            of = list(map(wx.RadioButton.GetValue, ofms)).index(True)
+        except ValueError:
+            of = 0
         c.outFormat = of if of != 3 else self.ofmEnt.GetValue()
         c.rewOut = self.reoChk.GetValue()
         c.debug = self.debChk.GetValue()
@@ -124,7 +129,9 @@ class SCATab:
         return c
 
     def arrangeCompact(self):
-        self.frm.SetSizer(wx.GridBagSizer(vgap=0, hgap=10))
+        newSizer = self.frm.Sizer is None
+        if newSizer:
+            self.frm.SetSizer(wx.GridBagSizer(vgap=0, hgap=10))
         sz = self.frm.Sizer
         szOpts = [
             ([self.rewLbl, (0, 0)], {"flag": wx.EXPAND}),
@@ -151,11 +158,12 @@ class SCATab:
                        self.ilxTxt, self.olxTxt]:
             widget.SetMinSize(wx.Size(140, 224))
 
-        # all columns should resize
-        for c in range(3): sz.AddGrowableCol(c, proportion=1)
-        # rows 1 and 4 should resize
-        sz.AddGrowableRow(1, proportion=1)
-        sz.AddGrowableRow(4, proportion=1)
+        if newSizer:
+            # all columns should resize
+            for c in range(3): sz.AddGrowableCol(c, proportion=1)
+            # rows 1 and 4 should resize
+            sz.AddGrowableRow(1, proportion=1)
+            sz.AddGrowableRow(4, proportion=1)
 
         # pack the options into the options panel
         # use a Sizer inside a Sizer because border
@@ -171,7 +179,8 @@ class SCATab:
         szOfmEnt.SetFlag(wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT) # a bit offset
 
     def tkbuildExpanded(self):
-        "Arrange the contents in expanded view (in one row, ideal for maximised view)."
+        "Arrange the contents in expanded view (in one row, ideal for \
+maximised view)."
         for widget in self.frm.grid_slaves():
             widget.grid_forget()
 
@@ -256,7 +265,6 @@ small window).
 
     def __init__(self, master=None, conf=None, compact=True):
         self.frm = wx.Panel(master.notebook)
-        #Tk self.frm.configure(padding=5)
         ##self.build(compact)
         self.build(True)
         if conf is not None:
@@ -418,10 +426,10 @@ class SCAWin:
 
     def onClose(self, event):
         "Event handler for closing the window. Includes saving the configuration, the tabs and their contents to the __last files."
-        scaDir = os.path.dirname(__file__) + "\\WDwxport"
-        scaF = "{}/__last{}.sca"
-        slxF = "{}/__last{}.slx"
-        jsonPath = scaDir + "/__last.json"
+        scaDir = os.path.dirname(os.path.abspath(__file__)) + "\\WDwxport"
+        scaF = "{}\\__last{}.sca"
+        slxF = "{}\\__last{}.slx"
+        jsonPath = scaDir + "\\__last.json"
         if not os.path.exists(scaDir):
             os.mkdir(scaDir)
 
@@ -438,8 +446,7 @@ class SCAWin:
             os.remove(scaDir + "/" + filename)
 
         # save each of the tabs in a .sca and a .slx file
-        for no in range(len(self.tabs)):
-            tab = self.tabs[no]
+        for no, tab in enumerate(self.tabs):
             tab.saveSC (scaF.format(scaDir, no))
             tab.saveLex(slxF.format(scaDir, no))
 
@@ -501,11 +508,15 @@ class SCAWin:
         willCompact = self.win.Size.Width < 910
         if self.isCompact != willCompact:
             for tab in self.tabs:
-                tab.build(willCompact)
+                # get rid of the old layout
+                tab.frm.Sizer.Clear(delete_windows=True)
+                ##tab.build(willCompact)
+                tab.build(True)
             self.isCompact = willCompact
         if self.isCompact:
             self.win.SetMinSize(wx.Size(474, 572))
         else:
+            ##self.win.SetMinSize(wx.Size(..., ...)) # expanded
             self.win.SetMinSize(wx.Size(474, 572))
         event.Skip()
 
@@ -598,14 +609,14 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
 
     def loadLast(self):
         "Load the configuration, the tabs and their contents from the __last files."
-        scaDir = os.path.dirname(__file__) + "\\WDwxport"
+        scaDir = os.path.dirname(os.path.abspath(__file__)) + "\\WDwxport"
         # load the .json file
-        jsonPath = scaDir + "/__last.json"
+        jsonPath = scaDir + "\\__last.json"
         try:
             with open(jsonPath, encoding="utf8") as jsonFile:
                 jso = json.load(jsonFile)
             # restore everything from the .json file
-            self.win.SetRect(jso["rect"])
+            if "rect" in jso: self.win.SetRect(jso["rect"])
             if jso["isMaximised"]:
                 self.win.SetWindowStyle(self.win.WindowStyle|wx.MAXIMIZE)
             for tabJSO in jso["tabs"]:
@@ -632,29 +643,26 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
                 tab.olxTxt.SetValue("\n".join(tabJSO["outLex"]))
             if jso["curTab"] is not None:
                 self.notebook.SetSelection(jso["curTab"])
-        except:
+            print("Successfully loaded.")
+        except FileNotFoundError as e:
             self.newTab()
             no = self.notebook.GetSelection()
             tab = self.tabs[no]
             tab.setSCAConf(sca.example)
-
-
-
+            print("Could not load.")
+            print(e)
 
     def __init__(self):
         self.app = wx.App(0) # 1 → stdout and stderr in a window
         self.win = wx.Frame(None, wx.ID_ANY,
                             title="PythonSCA\u00b2", size=wx.Size(460, 522))
+        self.app.SetTopWindow(self.win)
         self.win.SetSizer(wx.BoxSizer())
         self.build()
         self.loadLast()
-
-    def mainloop(self):
-        "Call the mainloop of the wx.App (i.e. start the program)."
         self.win.Show()
         self.app.MainLoop()
 
 
 if __name__ == "__main__":
     scaWin = SCAWin()
-    scaWin.mainloop()
