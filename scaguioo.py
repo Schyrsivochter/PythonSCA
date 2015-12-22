@@ -285,11 +285,9 @@ class SCAWin:
     closedTabs = []
     isCompact = False
 
-    scTypes =  [("SCA sound change files", ".sc .sca"),
-                ("All files",              ".*"      )]
+    scTypes =  "SCA sound change files|*.sca;*.sc|All files|*.*"
 
-    lexTypes = [("SCA lexicon files",     ".lex .slx"),
-                ("All files",              ".*"      )]
+    lexTypes = "SCA lexicon files|*.slx;*.lex|All files|*.*"
 
 
     def tabidx(self, tabno):
@@ -299,39 +297,55 @@ class SCAWin:
         "Return the SCATab object of the current tab."
         return self.tabs[self.notebook.GetSelection()]
 
-    def tkaskSaveSC(self):
+    def askSaveSC(self):
         tab = self.curTab()
-        scPath = filedialog.asksaveasfilename(defaultextension="sca", filetypes=self.scTypes, initialfile=tab.lastSC)
-        if scPath:
+        lastdir, lastfile = os.path.split(tab.lastSC)
+        dlg = wx.FileDialog(self.win, defaultDir=lastdir, defaultFile=lastfile,
+                wildcard=self.scTypes, style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+        if dlg.ShowModal() == wx.ID_OK:
+            scPath = dlg.GetPath()
             tab.saveSC(scPath)
             tab.lastSC = scPath
 
-    def tkaskSaveLex(self):
+    def askSaveLex(self):
         tab = self.curTab()
-        lexPath = filedialog.asksaveasfilename(defaultextension="slx", filetypes=self.lexTypes, initialfile=tab.lastLex)
-        if lexPath:
+        lastdir, lastfile = os.path.split(tab.lastLex)
+        dlg = wx.FileDialog(self.win, defaultDir=lastdir, defaultFile=lastfile,
+                wildcard=self.lexTypes, style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+        if dlg.ShowModal() == wx.ID_OK:
+            lexPath = dlg.GetPath()
             tab.saveLex(lexPath)
             tab.lastLex = lexPath
 
-    def tkaskSaveOut(self):
+    def askSaveOut(self):
         tab = self.curTab()
-        lexPath = filedialog.asksaveasfilename(defaultextension="slx", filetypes=self.lexTypes, initialdir=os.path.dirname(tab.lastLex))
-        if lexPath:
-            lexContent = tab.olxTxt.get("1.0","end")
-            with open(lexPath, mode=("w" if os.path.isfile(lexPath) else "x"), encoding="utf8") as lexFile:
+        lastdir, lastfile = os.path.split(tab.lastLex)
+        dlg = wx.FileDialog(self.win, defaultDir=lastdir, defaultFile=lastfile,
+                wildcard=self.lexTypes, style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+        if dlg.ShowModal() == wx.ID_OK:
+            lexPath = dlg.GetPath()
+            lexContent = tab.olxTxt.GetValue()
+            with open(lexPath, mode=("w" if os.path.isfile(lexPath) else "x"),
+                      encoding="utf8") as lexFile:
                 lexFile.write(lexContent)
 
-    def tkaskOpenSC(self):
+    def askOpenSC(self):
         tab = self.curTab()
-        scPath = filedialog.askopenfilename(filetypes=self.scTypes, initialfile=tab.lastSC)
-        if scPath:
+        lastdir, lastfile = os.path.split(tab.lastSC)
+        dlg = wx.FileDialog(self.win, defaultDir=lastdir, defaultFile=lastfile,
+                            wildcard=self.scTypes, style=wx.FD_OPEN)
+        if dlg.ShowModal() == wx.ID_OK:
+            scPath = dlg.GetPath()
             tab.loadSC(scPath)
             tab.lastSC = scPath
 
-    def tkaskOpenLex(self):
+    def askOpenLex(self):
         tab = self.curTab()
-        lexPath = filedialog.askopenfilename(filetypes=self.lexTypes, initialfile=tab.lastLex)
-        if lexPath:
+        lastdir, lastfile = os.path.split(tab.lastLex)
+        dlg = wx.FileDialog(self.win, defaultDir=lastdir, defaultFile=lastfile,
+                            wildcard=self.lexTypes, style=wx.FD_OPEN)
+        if dlg.ShowModal() == wx.ID_OK:
+            lexPath = dlg.GetPath()
             tab.loadLex(lexPath)
             tab.lastLex = lexPath
 
@@ -573,8 +587,8 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
         clCat = self.rulmen.Append(wx.ID_ANY, "Clear categories")
         clRul = self.rulmen.Append(wx.ID_ANY, "Clear sound change rules")
         clAll = self.rulmen.Append(wx.ID_ANY, "Clear all")
-        #self.win.Bind(wx.EVT_MENU, self.onOpenSC, loadR)
-        #self.win.Bind(wx.EVT_MENU, self.onSaveSC, saveR)
+        self.win.Bind(wx.EVT_MENU, lambda e: self.askOpenSC(), loadR)
+        self.win.Bind(wx.EVT_MENU, lambda e: self.askSaveSC(), saveR)
         self.win.Bind(wx.EVT_MENU, lambda e: self.curTab().rewTxt.Clear(), clRew)
         self.win.Bind(wx.EVT_MENU, lambda e: self.curTab().catTxt.Clear(), clCat)
         self.win.Bind(wx.EVT_MENU, lambda e: self.curTab().rulTxt.Clear(), clRul)
@@ -587,9 +601,9 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
         saveO = self.lexmen.Append(wx.ID_ANY, "Save output to file \u2026")
         self.lexmen.AppendSeparator()
         clLex = self.lexmen.Append(wx.ID_ANY, "Clear input lexicon")
-        #self.win.Bind(wx.EVT_MENU, self.onOpenLex, loadL)
-        #self.win.Bind(wx.EVT_MENU, self.onSaveLex, saveL)
-        #self.win.Bind(wx.EVT_MENU, self.onSaveOut, saveO)
+        self.win.Bind(wx.EVT_MENU, lambda e: self.askOpenLex(), loadL)
+        self.win.Bind(wx.EVT_MENU, lambda e: self.askSaveLex(), saveL)
+        self.win.Bind(wx.EVT_MENU, lambda e: self.askSaveOut(), saveO)
         self.win.Bind(wx.EVT_MENU, lambda e: self.curTab().ilxTxt.Clear(), clLex)
 
         # create the "tab" menu
