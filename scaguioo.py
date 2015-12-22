@@ -364,20 +364,20 @@ class SCAWin:
     def renameTab(self, tabno):
         "Open a modal dialog for renaming tab."
         if self.tabs:
-            renDlg = wx.Dialog(self.win, title="Rename tab")
-            renDlg.SetMinSize(wx.Size(200, 100))
-            renDlg.SetSizer(BoxSizer(wx.VERTICAL))
-            renLbl = wx.StaticText(renDlg, label="Enter new name:")
-            renEnt = wx.TextCtrl(renDlg, value=self.notebook.GetPageText(tabno))
-            renBtn = wx.Button(renDlg, id=wx.ID_OK, label="Ok")
-            for widget in [renLbl, renEnt, renBtn]:
-                renDlg.Sizer.Add(widget, proportion=1,
-                                 flag=wx.ALL|wx.EXPAND, border=5)
-            def renOk(event):
-                self.notebook.SetPageText(tabno, renEnt.GetValue())
-                event.Skip()
-            renDlg.Bind(wx.EVT_CLOSE, renOk, id=wx.ID_OK)
+            renDlg = wx.TextEntryDialog(self.win, "Enter new name:",
+                                        caption="Rename tab",
+                                        value=self.notebook.GetPageText(tabno))
             renDlg.ShowModal()
+            # self.notebook.SetPageText(tabno, renDlg.GetValue()) won’t work,
+            # because of a bug in wxPython
+            # that’s why we create a new page with the same content
+            tab = self.tabs[tabno]
+            # notebook.SetSelection is also affected by this bug,
+            # otherwise we’d use self.notebook.SetSelection(sel)
+            sel = self.notebook.GetSelection()
+            self.notebook.RemovePage(tabno)
+            self.notebook.InsertPage(tabno, tab.frm, text=renDlg.GetValue(),
+                                     select=(sel == tabno))
 
     def cloneTab(self, tabno):
         "Open a new tab with the same contents as tab."
