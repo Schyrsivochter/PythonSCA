@@ -16,11 +16,14 @@ Please note that *I am not Mark Rosenfelder or in any way affiliated with him.* 
 - *Not* highly customisable unless you know Python and Tkinter.
 - Has probably loads of bugs, though.
 
+### Dependencies
+- [Python 3](https://www.python.org/downloads/)
+- wxPython Phoenix
+
 ### Installation
-1. Download and install Python 3 (if you haven’t already got it). It’s important that you use Python 3 and not Python 2, otherwise it won’t work.
-2. Download sca.py, scaguioo.py and scagui.pyw.
-3. Place them where you want. It’s important that you have them all in the same directory, though, or it won’t work (unless you know enough Python to change my code so the GUI looks for sca.py elsewhere).
-4. Run scagui.pyw. It will create a directory with some files when closing for the first time. Leave them there unless you want to start over every time you close and re-open the SCA.
+1. Download sca.py, scaguioo.py and scagui.pyw.
+2. Place them where you want. It’s important that you have them all in the same directory, though, or it won’t work (unless you know enough Python to change my code so the GUI looks for sca.py elsewhere).
+3. Run scagui.pyw. It will create a directory with some files when closing for the first time. Leave them there unless you want to start over every time you close and re-open the SCA.
 
 ### Further information
 - The tabs behave like in a web browser – Ctrl+T opens a new one, Ctrl+W closes the current one; middle click on a tab closes it, middle click on the tab bar opens a new one. They can be switched with Ctrl-PgUp/PgDn. You can’t move them by dragging yet, sorry.
