@@ -655,16 +655,20 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
             print(e)
 
     def __init__(self):
-        self.app = wx.App(0) # 1 → stdout and stderr in a window
         self.win = wx.Frame(None, wx.ID_ANY,
                             title="PythonSCA\u00b2", size=wx.Size(460, 522))
-        self.app.SetTopWindow(self.win)
         self.win.SetSizer(wx.BoxSizer())
         self.build()
         self.loadLast()
-        self.win.Show()
-        self.app.MainLoop()
 
+class PythonSCA(wx.App):
+
+    def OnInit(self):
+        self.scaWin = SCAWin()
+        self.SetTopWindow(self.scaWin.win)
+        self.scaWin.win.Show()
+        return True
 
 if __name__ == "__main__":
-    scaWin = SCAWin()
+    app = PythonSCA(0)
+    app.MainLoop()
