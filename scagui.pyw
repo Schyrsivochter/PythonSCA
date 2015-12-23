@@ -19,7 +19,6 @@ Python re-code (C) 2015 Andreas Kübrich aka Schyrsivochter (andreas.kuebrich@ku
 
 import os, sys
 sys.path.append(os.path.dirname(__file__))
-import scaguiootk
+import scaguioo
 
-scaWin = scaguiootk.SCAWin()
-scaWin.mainloop()
+scaguioo.PythonSCA(1).MainLoop()
