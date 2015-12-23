@@ -357,11 +357,11 @@ class SCAWin:
             tab.catTxt.Clear()
             tab.rulTxt.Clear()
 
-    def newTab(self):
+    def newTab(self, tabtext="New tab"):
         "Open a new blank tab."
         tab = SCATab(self, compact=self.isCompact)
         self.tabs.append(tab)
-        self.notebook.AddPage(tab.frm, "New tab", select=True)
+        self.notebook.AddPage(tab.frm, tabtext, select=True)
 
     def closeTab(self, tabno):
         "Close tab and keep it for restoring."
@@ -386,11 +386,11 @@ class SCAWin:
                                         caption="Rename tab",
                                         value=self.notebook.GetPageText(tabno))
             renDlg.ShowModal()
-            # self.notebook.SetPageText(tabno, renDlg.GetValue()) won’t work,
+            # self.notebook.SetPageText() won’t work,
             # because of a bug in wxPython
             # that’s why we create a new page with the same content
             tab = self.tabs[tabno]
-            # notebook.SetSelection is also affected by this bug,
+            # wx.Notebook.SetSelection is also affected by this bug,
             # otherwise we’d use self.notebook.SetSelection(sel)
             sel = self.notebook.GetSelection()
             self.notebook.RemovePage(tabno)
@@ -400,8 +400,10 @@ class SCAWin:
     def cloneTab(self, tabno):
         "Open a new tab with the same contents as tab."
         otab = self.tabs[tabno]
-        self.newTab()
-        ntab = curTab()
+        # For some reason, the SetPageText/SetSelection bug appears here, too.
+        # That’s why the new tab will have the name "New tab".
+        self.newTab() ##self.newTab(self.notebook.GetPageText(tabno))
+        ntab = self.curTab()
         ntab.setSCAConf(otab.getSCAConf())
 
     def moveTabRight(self, tabno):
