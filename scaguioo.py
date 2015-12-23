@@ -402,7 +402,8 @@ class SCAWin:
         otab = self.tabs[tabno]
         # For some reason, the SetPageText/SetSelection bug appears here, too.
         # That’s why the new tab will have the name "New tab".
-        self.newTab() ##self.newTab(self.notebook.GetPageText(tabno))
+        self.newTab()
+        #~ self.newTab(self.notebook.GetPageText(tabno))
         ntab = self.curTab()
         ntab.setSCAConf(otab.getSCAConf())
 
@@ -599,7 +600,7 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
         self.win.Bind(wx.EVT_MENU, lambda e: self.curTab().rewTxt.Clear(), clRew)
         self.win.Bind(wx.EVT_MENU, lambda e: self.curTab().catTxt.Clear(), clCat)
         self.win.Bind(wx.EVT_MENU, lambda e: self.curTab().rulTxt.Clear(), clRul)
-        self.win.Bind(wx.EVT_MENU, lambda e: self.clearRules, clAll)
+        self.win.Bind(wx.EVT_MENU, lambda e: self.clearRules(), clAll)
 
         # create the "lexicon" menu and bind events
         self.lexmen = wx.Menu()
@@ -619,7 +620,7 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
         newtb = self.tabmen.Append(wx.ID_NEW, "New tab")
         rsttb = self.tabmen.Append(wx.ID_ANY, "Restore closed tab")
         self.win.Bind(wx.EVT_MENU, lambda e: self.newTab(), newtb)
-        #self.win.Bind(wx.EVT_MENU, self.onRestoreTab, rsttb)
+        self.win.Bind(wx.EVT_MENU, lambda e: self.restoreTab(), rsttb)
 
         # put them on the menu bar and the menu bar on the window
         self.win.MenuBar.Append(self.tabmen, "Tabs")
