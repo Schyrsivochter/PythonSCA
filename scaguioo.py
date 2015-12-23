@@ -650,7 +650,7 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
             # restore everything from the .json file
             if "rect" in jso: self.win.SetRect(jso["rect"])
             if jso["isMaximised"]:
-                self.win.SetWindowStyle(self.win.WindowStyle|wx.MAXIMIZE)
+                self.win.Maximize()
             for tabJSO in jso["tabs"]:
                 # make a new tab
                 self.newTab()
