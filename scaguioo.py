@@ -410,9 +410,9 @@ class SCAWin:
         tabtext = self.notebook.GetPageText(tabno)
         tab = self.tabs.pop(tabno)
         self.notebook.RemovePage(tabno)
-        if tabno < len(self.tabs) - 1:
-            self.notebook.InsertPage(tabid+1, tab.frm, tabtext, select=True)
-            self.tabs.insert(tab, tabno+1)
+        if tabno < len(self.tabs):
+            self.notebook.InsertPage(tabno+1, tab.frm, tabtext, select=True)
+            self.tabs.insert(tabno+1, tab)
         else:
             self.notebook.InsertPage(0, tab.frm, tabtext, select=True)
             self.tabs.insert(0, tab)
@@ -424,10 +424,10 @@ class SCAWin:
         self.notebook.RemovePage(tabno)
         if tabno > 0:
             self.notebook.InsertPage(tabno-1, tab.frm, tabtext, select=True)
-            self.tabs.insert(tab, tabno-1)
+            self.tabs.insert(tabno-1, tab)
         else:
             self.notebook.AddPage(tab.frm, tabtext, select=True)
-            self.tabs.append(tabno)
+            self.tabs.append(tab)
 
     def newTabMenu(self, tabno):
         "Create a new popup menu for tab."
@@ -554,16 +554,23 @@ class SCAWin:
             self.notebook.SetSelection(len(self.tabs)-1)
 
     def onKeyPress(self, event):
+        curTabID = self.notebook.GetSelection()
         keyEvents = {
-            "<F9>": (lambda e: self.curTab().applyRules()),
-            "<Control-t>": (lambda e: self.newTab()),
-            "<Control-w>": (lambda e: self.closeTab("current")),
-            "<Control-Prior>": self.onSwitchLeft,
-            "<Control-Next>": self.onSwitchRight,
-            "<Control-Alt-Prior>": (lambda e: self.moveTabLeft("current")),
-            "<Control-Alt-Next>": (lambda e: self.moveTabRight("current"))
+            (wx.WXK_F9, wx.MOD_NONE):
+                lambda e: self.curTab().applyRules(),
+            (ord("T"), wx.MOD_CONTROL):
+                lambda e: self.newTab(),
+            (ord("W"), wx.MOD_CONTROL):
+                lambda e: self.closeTab(curTabID),
+            (wx.WXK_PAGEUP, wx.MOD_CONTROL): self.onSwitchLeft,
+            (wx.WXK_PAGEDOWN, wx.MOD_CONTROL): self.onSwitchRight,
+            (wx.WXK_PAGEUP, wx.MOD_CONTROL|wx.MOD_ALT):
+                lambda e: self.moveTabLeft(curTabID),
+            (wx.WXK_PAGEDOWN, wx.MOD_CONTROL|wx.MOD_ALT):
+                lambda e: self.moveTabRight(curTabID)
         }
-        key = event.GetKeyCode()
+        key = event.GetKeyCode(), event.GetModifiers()
+        print(key)
         if key in keyEvents:
             keyEvents[key](event)
         else:
@@ -619,7 +626,7 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
         self.win.MenuBar.Append(self.rulmen, "Rules")
         self.win.MenuBar.Append(self.lexmen, "Lexicon")
 
-        self.win.Bind(wx.EVT_CHAR, self.onKeyPress)
+        self.win.Bind(wx.EVT_CHAR_HOOK, self.onKeyPress)
         self.win.Bind(wx.EVT_CLOSE, self.onClose)
         self.win.Bind(wx.EVT_MOUSE_EVENTS, self.onClick)
         self.win.Bind(wx.EVT_SIZE, self.onResize)
