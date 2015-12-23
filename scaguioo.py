@@ -366,7 +366,6 @@ class SCAWin:
     def closeTab(self, tabno):
         "Close tab and keep it for restoring."
         if self.tabs:
-            print("Closing tab", tabno)
             self.closedTabs.append((
                 self.tabs.pop(tabno),
                 self.notebook.GetPageText(tabno)
@@ -570,7 +569,6 @@ class SCAWin:
                 lambda e: self.moveTabRight(curTabID)
         }
         key = event.GetKeyCode(), event.GetModifiers()
-        print(key)
         if key in keyEvents:
             keyEvents[key](event)
         else:
@@ -667,14 +665,11 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
                 tab.olxTxt.SetValue("\n".join(tabJSO["outLex"]))
             if jso["curTab"] is not None:
                 self.notebook.SetSelection(jso["curTab"])
-            print("Successfully loaded.")
         except FileNotFoundError as e:
             self.newTab()
             no = self.notebook.GetSelection()
             tab = self.tabs[no]
             tab.setSCAConf(sca.example)
-            print("Could not load.")
-            print(e)
 
     def __init__(self):
         self.win = wx.Frame(None, wx.ID_ANY,
