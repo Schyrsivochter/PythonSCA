@@ -233,24 +233,19 @@ small window).
                           wx.FONTWEIGHT_NORMAL, faceName="Consolas")
         self.rewLbl = wx.StaticText(self.frm, label="Rewrite rules")
         self.rewTxt = wx.TextCtrl(self.frm, style=wx.TE_MULTILINE|wx.TE_CHARWRAP)
-        self.rewTxt.SetFont(edtfont)
         self.catLbl = wx.StaticText(self.frm, label="Categories")
         self.catTxt = wx.TextCtrl(self.frm, style=wx.TE_MULTILINE|wx.TE_CHARWRAP)
-        self.catTxt.SetFont(edtfont)
         self.rulLbl = wx.StaticText(self.frm, label="Sound changes")
         self.rulTxt = wx.TextCtrl(self.frm, style=wx.TE_MULTILINE|wx.TE_CHARWRAP)
-        self.rulTxt.SetFont(edtfont)
 
         self.optBox = wx.StaticBox(self.frm, label="Options")
         self.appBtn = wx.Button(self.frm, label="Apply")
         self.ilxLbl = wx.StaticText(self.frm, label="Input lexicon")
         self.ilxTxt = wx.TextCtrl(self.frm, style=wx.TE_MULTILINE|wx.TE_CHARWRAP)
-        self.ilxTxt.SetFont(edtfont)
         self.olxLbl = wx.StaticText(self.frm, label="Output lexicon")
         self.olxTxt = wx.TextCtrl(self.frm, style = wx.TE_MULTILINE |
                                                        wx.TE_CHARWRAP |
                                                        wx.TE_READONLY )
-        self.olxTxt.SetFont(edtfont)
 
         self.ofmLbl = wx.StaticText(self.optBox, label="Output format")
         self.ofmRb1 = wx.RadioButton(self.optBox, label="output")
@@ -261,6 +256,18 @@ small window).
         self.reoChk = wx.CheckBox(self.optBox, label="Rewrite on output")
         self.debChk = wx.CheckBox(self.optBox, label="Debug")
         self.debChk.Disable()
+
+        for textw in [self.rewTxt, self.catTxt, self.rulTxt,
+                      self.ilxTxt, self.olxTxt]:
+            textw.SetFont(edtfont)
+            # for some reason, this does not work
+            def handleKey(event):
+                key = event.GetKeyCode(), event.GetModifiers()
+                if key == (ord("A"), wx.MOD_CONTROL):
+                    textw.SelectAll()
+                else:
+                    event.Skip()
+            textw.Bind(wx.EVT_KEY_DOWN, handleKey)
 
         self.frm.Bind(wx.EVT_BUTTON, lambda e: self.applyRules(), self.appBtn)
         # TODO:
