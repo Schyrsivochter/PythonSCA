@@ -7,7 +7,7 @@ Please note that *I am not Mark Rosenfelder or in any way affiliated with him.* 
 
 ### Features
 - Almost fully compatible to Zompist’s SCA². The only exception is the wildcard, which has not been implemented yet. For details on what it does, see http://zompist.com/scahelp.html.
-- Native windowed GUI.
+- Native window GUI.
 - A nice large Apply button, and everything is packed closely (to me it was the main flaw in the SCA² that the Apply button was so small and everything was so far apart), but expands to a side-by-side-view if it gets large.
 - Tabs for running multiple SCAs in one window. They can be renamed, restored after closing, and moved around.
 - You can save and load rules and lexicons to/from files directly.
@@ -18,7 +18,7 @@ Please note that *I am not Mark Rosenfelder or in any way affiliated with him.* 
 
 ### Dependencies
 - [Python 3](https://www.python.org/downloads/)
-- wxPython Phoenix
+- A compatible version of [wxPython Phoenix](http://wiki.wxpython.org/ProjectPhoenix)
 
 ### Installation
 1. Download sca.py, scaguioo.py and scagui.pyw.
