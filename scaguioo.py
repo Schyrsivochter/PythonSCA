@@ -456,7 +456,11 @@ class SCAWin:
 
     def onClose(self, event):
         "Event handler for closing the window. Includes saving the configuration, the tabs and their contents to the __last files."
-        scaDir = os.path.dirname(os.path.abspath(__file__)) + "\\WD"
+        scaDir = os.path.dirname(os.path.abspath(__file__))
+        if os.path.isfile(scaDir): # if it’s packed
+            # then the WD is created in the containing folder
+            scaDir = os.path.dirname(scaDir)
+        scaDir += "\\WD"
         scaF = "{}\\__last{}.sca"
         slxF = "{}\\__last{}.slx"
         jsonPath = scaDir + "\\__last.json"
@@ -642,7 +646,11 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
 
     def loadLast(self):
         "Load the configuration, the tabs and their contents from the __last files."
-        scaDir = os.path.dirname(os.path.abspath(__file__)) + "\\WD"
+        scaDir = os.path.dirname(os.path.abspath(__file__))
+        if os.path.isfile(scaDir): # if it’s packed
+            # then the WD is looked for in the containing folder
+            scaDir = os.path.dirname(scaDir)
+        scaDir += "\\WD"
         # load the .json file
         jsonPath = scaDir + "\\__last.json"
         try:
