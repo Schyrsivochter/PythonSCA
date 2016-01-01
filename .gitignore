@@ -8,3 +8,5 @@ __last*
 /__pycache__
 
 *.geany
+
+*.pyz
