@@ -298,7 +298,7 @@ class SCAWin:
 
 
     def tabidx(self, tabno):
-        return (tabno if tabno < -1 else self.notebook.GetSelection())
+        return (tabno if tabno > -1 else self.notebook.GetSelection())
 
     def curTab(self):
         "Return the SCATab object of the current tab."
