@@ -292,9 +292,9 @@ class SCAWin:
     closedTabs = []
     isCompact = False
 
-    scTypes =  "SCA sound change files|*.sca;*.sc|All files|*.*"
+    scTypes =  "SCA sound change files (*.sca; *.sc)|*.sca;*.sc|All files (*.*)|*.*"
 
-    lexTypes = "SCA lexicon files|*.slx;*.lex|All files|*.*"
+    lexTypes = "SCA lexicon files (*.slx; *.lex)|*.slx;*.lex|All files (*.*)|*.*"
 
 
     def tabidx(self, tabno):
