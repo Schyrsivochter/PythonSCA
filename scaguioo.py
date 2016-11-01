@@ -397,24 +397,12 @@ class SCAWin:
                                         caption="Rename tab",
                                         value=self.notebook.GetPageText(tabno))
             renDlg.ShowModal()
-            # self.notebook.SetPageText() won’t work,
-            # because of a bug in wxPython
-            # that’s why we create a new page with the same content
-            tab = self.tabs[tabno]
-            # wx.Notebook.SetSelection is also affected by this bug,
-            # otherwise we’d use self.notebook.SetSelection(sel)
-            sel = self.notebook.GetSelection()
-            self.notebook.RemovePage(tabno)
-            self.notebook.InsertPage(tabno, tab.frm, text=renDlg.GetValue(),
-                                     select=(sel == tabno))
+            self.notebook.SetPageText(tabno, renDlg.GetValue())
 
     def cloneTab(self, tabno):
         "Open a new tab with the same contents as tab."
         otab = self.tabs[tabno]
-        # For some reason, the SetPageText/SetSelection bug appears here, too.
-        # That’s why the new tab will have the name "New tab".
-        self.newTab()
-        #~ self.newTab(self.notebook.GetPageText(tabno))
+        self.newTab(self.notebook.GetPageText(tabno))
         ntab = self.curTab()
         ntab.setSCAConf(otab.getSCAConf())
 
