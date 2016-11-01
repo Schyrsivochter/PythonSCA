@@ -257,17 +257,21 @@ small window).
         self.debChk = wx.CheckBox(self.optBox, label="Debug")
         self.debChk.Disable()
 
+        def keyHandler(textw):
+            def handleKey(event):
+                key = event.GetKeyCode()
+                if event.GetModifiers() == wx.MOD_CONTROL:
+                    if key == ord("A"):
+                        textw.SelectAll()
+                        return
+                event.Skip()
+            return handleKey
+
         for textw in [self.rewTxt, self.catTxt, self.rulTxt,
                       self.ilxTxt, self.olxTxt]:
             textw.SetFont(edtfont)
-            # for some reason, this does not work
-            def handleKey(event):
-                key = event.GetKeyCode(), event.GetModifiers()
-                if key == (ord("A"), wx.MOD_CONTROL):
-                    textw.SelectAll()
-                else:
-                    event.Skip()
-            textw.Bind(wx.EVT_KEY_DOWN, handleKey)
+            textw.DragAcceptFiles(True)
+            textw.Bind(wx.EVT_KEY_DOWN, keyHandler(textw))
 
         self.frm.Bind(wx.EVT_BUTTON, lambda e: self.applyRules(), self.appBtn)
         # TODO:
