@@ -283,7 +283,7 @@ small window).
         self.arrange(compact)
 
     def __init__(self, master=None, conf=None, compact=True):
-        self.frm = wx.Panel(master.notebook)
+        self.frm = wx.Panel(master.notebook, style=wx.CLIP_CHILDREN)
         self.build(compact)
         if conf is not None:
             self.setSCAConf(conf)
@@ -410,6 +410,8 @@ class SCAWin:
         "Swap tab with its right neighbour."
         tabtext = self.notebook.GetPageText(tabno)
         tab = self.tabs.pop(tabno)
+        # else the rapid tab closing and opening is visible
+        self.notebook.Freeze()
         self.notebook.RemovePage(tabno)
         if tabno < len(self.tabs):
             self.notebook.InsertPage(tabno+1, tab.frm, tabtext, select=True)
@@ -417,11 +419,14 @@ class SCAWin:
         else:
             self.notebook.InsertPage(0, tab.frm, tabtext, select=True)
             self.tabs.insert(0, tab)
+        self.notebook.Thaw()
 
     def moveTabLeft(self, tabno):
         "Swap tab with its left neighbour."
         tabtext = self.notebook.GetPageText(tabno)
         tab = self.tabs.pop(tabno)
+        # else the rapid tab closing and opening is visible
+        self.notebook.Freeze()
         self.notebook.RemovePage(tabno)
         if tabno > 0:
             self.notebook.InsertPage(tabno-1, tab.frm, tabtext, select=True)
@@ -429,6 +434,7 @@ class SCAWin:
         else:
             self.notebook.AddPage(tab.frm, tabtext, select=True)
             self.tabs.append(tab)
+        self.notebook.Thaw()
 
     def newTabMenu(self, tabno):
         "Create a new popup menu for tab."
@@ -542,22 +548,6 @@ class SCAWin:
             self.win.SetMinSize(wx.Size(474, 406))
         event.Skip()
 
-    def onSwitchRight(self, event):
-        'Event handler for the "switch tab right" keyboard shortcut.'
-        tabno = self.notebook.GetSelection()
-        if tabno < len(self.tabs) - 1:
-            self.notebook.SetSelection(tabno + 1)
-        else:
-            self.notebook.SetSelection(0)
-
-    def onSwitchLeft(self, event):
-        'Event handler for the "switch tab left" keyboard shortcut.'
-        tabno = self.notebook.GetSelection()
-        if tabno > 0:
-            self.notebook.SetSelection(tabno - 1)
-        else:
-            self.notebook.SetSelection(len(self.tabs)-1)
-
     def onKeyPress(self, event):
         curTabID = self.notebook.GetSelection()
         keyEvents = {
@@ -567,8 +557,10 @@ class SCAWin:
                 lambda e: self.newTab(),
             (ord("W"), wx.MOD_CONTROL):
                 lambda e: self.closeTab(curTabID),
-            (wx.WXK_PAGEUP, wx.MOD_CONTROL): self.onSwitchLeft,
-            (wx.WXK_PAGEDOWN, wx.MOD_CONTROL): self.onSwitchRight,
+            (wx.WXK_PAGEUP, wx.MOD_CONTROL):
+                lambda e: self.notebook.AdvanceSelection(False),
+            (wx.WXK_PAGEDOWN, wx.MOD_CONTROL):
+                lambda e: self.notebook.AdvanceSelection(True),
             (wx.WXK_PAGEUP, wx.MOD_CONTROL|wx.MOD_ALT):
                 lambda e: self.moveTabLeft(curTabID),
             (wx.WXK_PAGEDOWN, wx.MOD_CONTROL|wx.MOD_ALT):
