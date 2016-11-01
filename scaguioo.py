@@ -277,8 +277,8 @@ small window).
         # TODO:
         ##self.ilxTxt.Bind(wx.EVT_SCROLLWIN, ...)
         ##self.olxTxt.Bind(wx.EVT_SCROLLWIN, ...)
-        # check ‘Custom’ if custom format Entry gets the focus
-        self.ofmEnt.Bind(wx.EVT_SET_FOCUS, lambda e: self.ofmRb4.SetValue(True))
+        # check ‘Custom’ if custom format is changed
+        self.ofmEnt.Bind(wx.EVT_TEXT, lambda e: self.ofmRb4.SetValue(True))
 
         self.arrange(compact)
 
