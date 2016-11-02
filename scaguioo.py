@@ -523,13 +523,15 @@ class SCAWin:
     def onNBClick(self, event):
         "Event handler for any mouse button click on the notebook."
         b = event.GetButton()
-        if b == wx.MOUSE_BTN_LEFT:
-            # left button does nothing
+        #~ print("button:", b)
+        pos = event.GetPosition()
+        # HitTest doesn’t work, always returns wx.NOT_FOUND
+        tabClicked, flags = self.notebook.HitTest(pos)
+        #~ print("pos:", pos)
+        #~ print("HitTest:", tabClicked, flags)
+        if tabClicked == wx.NOT_FOUND:
             event.Skip()
             return
-        pos = event.GetPosition()
-        # HitTest doesn’t work
-        tabClicked, dummy = self.notebook.HitTest(pos)
         if b == wx.MOUSE_BTN_MIDDLE:
             self.closeTab(tabClicked)
         elif b == wx.MOUSE_BTN_RIGHT: # right click
@@ -626,6 +628,8 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
         self.win.Bind(wx.EVT_CLOSE, self.onClose)
         self.win.Bind(wx.EVT_MIDDLE_UP, self.onWinMiddleClick)
         #~ self.notebook.Bind(wx.EVT_MOUSE_EVENTS, self.onNBClick)
+        self.notebook.Bind(wx.EVT_RIGHT_UP, self.onNBClick)
+        self.notebook.Bind(wx.EVT_MIDDLE_UP, self.onNBClick)
         self.win.Bind(wx.EVT_SIZE, self.onResize)
 
     def loadLast(self):
