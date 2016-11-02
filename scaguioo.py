@@ -510,12 +510,12 @@ class SCAWin:
             json.dump(jso, jsonfile, indent=2)
         event.Skip()
 
-    def onWinClick(self, event):
+    def onWinMiddleClick(self, event):
         "Event handler for any mouse button click on the window."
         b = event.GetButton()
         pos = event.GetPosition()
         x, y = pos
-        if b == wx.MOUSE_BTN_MIDDLE and y <= 21 and y >= 2:
+        if y <= 21 and y >= 2:
             self.newTab()
         else:
             event.Skip()
@@ -624,7 +624,7 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
 
         self.win.Bind(wx.EVT_CHAR_HOOK, self.onKeyPress)
         self.win.Bind(wx.EVT_CLOSE, self.onClose)
-        self.win.Bind(wx.EVT_MOUSE_EVENTS, self.onWinClick)
+        self.win.Bind(wx.EVT_MIDDLE_UP, self.onWinMiddleClick)
         #~ self.notebook.Bind(wx.EVT_MOUSE_EVENTS, self.onNBClick)
         self.win.Bind(wx.EVT_SIZE, self.onResize)
 
