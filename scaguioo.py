@@ -458,7 +458,7 @@ class SCAWin:
         if os.path.isfile(scaDir): # if it’s packed
             # then the WD is created in the containing folder
             scaDir = os.path.dirname(scaDir)
-        scaDir += "\\WD"
+        scaDir += "\\pysca"
         scaF = "{}\\__last{}.sca"
         slxF = "{}\\__last{}.slx"
         jsonPath = scaDir + "\\__last.json"
@@ -636,7 +636,7 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
         if os.path.isfile(scaDir): # if it’s packed
             # then the WD is looked for in the containing folder
             scaDir = os.path.dirname(scaDir)
-        scaDir += "\\WD"
+        scaDir += "\\pysca"
         # load the .json file
         jsonPath = scaDir + "\\__last.json"
         try:
