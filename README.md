@@ -13,7 +13,7 @@ Please note that *I am not Mark Rosenfelder or in any way affiliated with him.* 
 - You can save and load rules and lexicons to/from files directly.
 - Saves its tabs on exiting and restores them on opening.
 - Keyboard shortcut (F9) for applying the rules.
-- *Not* highly customisable unless you know Python and Tkinter.
+- *Not* highly customisable unless you know Python and wx.
 - Has probably loads of bugs, though.
 
 ### Dependencies

@@ -467,6 +467,7 @@ class SCAWin:
 
         isMaximised = self.win.IsMaximized()
         if isMaximised:
+            self.win.Unbind(wx.EVT_SIZE) # don’t redraw
             self.win.Maximize(False)
             normalRect = tuple(self.win.GetRect())
             self.win.Maximize(True)
@@ -576,6 +577,7 @@ class SCAWin:
         """Build the actual GUI with the menu and the tabs, and bind the keyboard shortcuts.
 Do not build any tabs or tab contents; that’s the task of newTab() and, ultimately, SCATab.make()."""
         self.notebook = wx.Notebook(self.win, style=wx.NB_TOP)
+        self.notebook.SetDoubleBuffered(True)
         self.win.Sizer.Add(self.notebook, proportion=1, flag=wx.EXPAND)
 
         # create a menu bar
