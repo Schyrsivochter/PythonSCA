@@ -284,6 +284,7 @@ small window).
 
     def __init__(self, master=None, conf=None, compact=True):
         self.frm = wx.Panel(master.notebook, style=wx.CLIP_CHILDREN)
+        self.master = master
         self.build(compact)
         if conf is not None:
             self.setSCAConf(conf)
@@ -527,8 +528,12 @@ class SCAWin:
         pos = event.GetPosition()
         # HitTest doesn’t work, always returns wx.NOT_FOUND
         tabClicked, flags = self.notebook.HitTest(pos)
-        #~ print("pos:", pos)
-        #~ print("HitTest:", tabClicked, flags)
+        print("pos:", pos)
+        print("HitTest:", tabClicked, flags)
+        abspos = self.notebook.ClientToScreen(pos)
+        tabClicked2, flags2 = self.notebook.HitTest(abspos)
+        print("abspos:", abspos)
+        print("HitTest:", tabClicked2, flags2)
         if tabClicked == wx.NOT_FOUND:
             event.Skip()
             return
