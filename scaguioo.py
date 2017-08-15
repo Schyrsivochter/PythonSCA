@@ -514,7 +514,7 @@ class SCAWin:
         event.Skip()
 
     def onWinMiddleClick(self, event):
-        "Event handler for any mouse button click on the window."
+        "Event handler for any middle click on the window that isn’t caught by the notebook."
         b = event.GetButton()
         pos = event.GetPosition()
         x, y = pos
