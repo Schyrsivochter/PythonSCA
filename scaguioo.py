@@ -298,7 +298,7 @@ class SCAWin:
     closedTabs = []
     isCompact = False
 
-    scTypes =  "SCA sound change files (*.sca; *.sc)|*.sca;*.sc|All files (*.*)|*.*"
+    scTypes =  "SCA sound change files (*.sc)|*.sc|All files (*.*)|*.*"
 
     lexTypes = "SCA lexicon files (*.slx; *.lex)|*.slx;*.lex|All files (*.*)|*.*"
 
@@ -476,11 +476,11 @@ class SCAWin:
         else:
             normalRect = tuple(self.win.GetRect())
 
-        # delete the .sca and .slx files
+        # delete the .sc and .slx files
         for filename in filter(lambda s: re.match("\\d*-.*\\.s(c|lx)", s), os.listdir(scaDir)):
             os.remove(f"{scaDir}/{filename}")
 
-        # save each of the tabs in a .sca and a .slx file
+        # save each of the tabs in a .sc and a .slx file
         for no, tab in enumerate(self.tabs):
             tab.saveSC (scaF.format(scaDir, no, self.notebook.GetPageText(no)))
             tab.saveLex(slxF.format(scaDir, no, self.notebook.GetPageText(no)))
