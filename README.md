@@ -6,7 +6,7 @@ The PythonSCA is based on Mark Rosenfelder (aka Zompist)’s SCA², implemented 
 Please note that *I am not Mark Rosenfelder or in any way affiliated with him.* This is a personal project.
 
 ### Features
-- Almost fully compatible to Zompist’s SCA². The only exception is the wildcard, which has not been implemented yet. For details on what it does, see http://zompist.com/scahelp.html.
+- Rule syntax almost fully backwards-compatible to Zompist’s SCA². The only exception is the wildcard, which has not been implemented yet. For details on what it does, see http://zompist.com/scahelp.html.
 - Native window GUI.
 - A nice large Apply button, and everything is packed closely (to me it was the main flaw in the SCA² that the Apply button was so small and everything was so far apart), but expands to a side-by-side-view if it gets large.
 - Tabs for running multiple SCAs in one window. They can be renamed, restored after closing, and moved around.
@@ -17,8 +17,8 @@ Please note that *I am not Mark Rosenfelder or in any way affiliated with him.* 
 - Has probably loads of bugs, though.
 
 ### Dependencies
-- [Python 3](https://www.python.org/downloads/)
-- A compatible version of [wxPython Phoenix](http://wiki.wxpython.org/ProjectPhoenix)
+- [Python 3.6 or later](https://www.python.org/downloads/)
+- A compatible version of wxPython, available on PyPI: `pip install wxPython`
 
 ### Installation
 1. Download sca.py, scaguioo.py and scagui.pyw.
@@ -26,13 +26,13 @@ Please note that *I am not Mark Rosenfelder or in any way affiliated with him.* 
 3. Run scagui.pyw. It will create a directory with some files when closing for the first time. Leave them there unless you want to start over every time you close and re-open the SCA.
 
 ### Further information
-- The tabs behave like in a web browser – Ctrl+T opens a new one, Ctrl+W closes the current one; middle click on a tab closes it, middle click on the tab bar opens a new one. They can be switched with Ctrl-PgUp/PgDn. You can’t move them by dragging yet, sorry.
-- The standard file extensions are `.slx` and `.sca` (not the `.lex` and `.sc` from Zompist’s first SCA).
-- In the ‘pysca’ directory you will find files named `__last{n}.slx` and `__last{n}.sca` with `n`s from 0 to the number of tabs - 1. They hold the rules and input lexicons from the last session. You can copy and rename them if you forgot to save something. (Actually, you can do with them what you want, since SCA does not read them – it restores the contents of its last tabs from the `__last.json` file.)
-- If you want to see the Python console to debug the program, run `scaguioo.py` directly. (`scagui.pyw` essentially just runs `scaguioo.py`, but since it has the `pyw` extension, Python hides the console.)
+- The tabs behave like in a web browser – Ctrl+T opens a new one, Ctrl+W closes the current one; middle click on a tab closes it, middle click on the tab bar opens a new one. They can be switched with Ctrl+PgUp/PgDn, and moved with Ctrl+Alt+PgUp/PgDn. You can’t move them by dragging, sorry.
+- The standard file extension for word lists/lexicons is `.slx` (not the `.lex` from Zompist’s first SCA).
+- In the ‘pysca’ directory you will find files that hold the rules and input lexicons from the last session. You can copy and rename them if you forgot to save something. (Actually, you can do with them what you want, since SCA does not read them – it restores the contents of its last tabs from the `__last.json` file.)
 - Ignore the checkbox named Debug. Originally, it makes the rule applying script show debug info, but you probably won’t understand it, and it will be *very* much, if not far too much for Python or for you to handle (that’s why it’s deactivated by default). So unless you know what you’re doing, leave it alone.
 - If you have any ideas or suggestions, feel free to contact me!
 
 ### Current roadmap
-- For the rule applying script `sca.py`:
-  - Support for the wildcard `…`
+- Support for the wildcard `…`
+- Improve GUI on systems that are not Windows 10
+- Add keyboard shortcuts to make workflow even easiër
