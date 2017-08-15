@@ -27,9 +27,9 @@ class SCAError(Exception):
 
 def printDebug(funcName, *args):
     if gdebug:
-        print("\nDebug info from " + funcName + ":", file=sys.stderr)
+        print(f"\nDebug info from {funcName}:", file=sys.stderr)
         for name, value in args:
-            print(name + " = " + repr(value), file=sys.stderr)
+            print(f"{name} = {value!r}", file=sys.stderr)
 
 def ruleExToRegex(expression, categories, numGroups):
     """Transform a part of a sound change rule into a regular expression.
@@ -71,9 +71,9 @@ are used for degemination."""
             if len(regExpression) and not regExpression[-1] == ")":
                 regExpression = regExpression[:-1] + "(" + regExpression[-1] + ")"
                 numGroups += 1
-            char = "\\" + str(numGroups)
+            char = f"\\{numGroups}"
         elif char in ".\\?|+*^${}":
-            char = "\\" + char
+            char = f"\\{char}"
         else:
             pass
         regExpression += (char + "|") if (brackets and not lastWasBracket) else char
@@ -92,13 +92,13 @@ Returns a tuple (wholeRE, beforeRE, targetRE, afterRE)."""
 
     envsplit = environment.split("_")
     if len(envsplit) != 2:
-        raise SCAError('Bad sound change rule environment: "' + environment + '" (must contain exactly one underscore)')
+        raise SCAError(f'Bad sound change rule environment: "{environment}" (must contain exactly one underscore)')
     envBefore, envAfter = envsplit
     befRE, numGroups = ruleExToRegex(envBefore, categories, 0)
     numGroups += 1
     tgtIndex = numGroups
     tgtRE, numGroups = ruleExToRegex(target, categories, numGroups)
-    tgtRE = "(" + tgtRE + ")"
+    tgtRE = f"({tgtRE})"
     aftRE, numGroups = ruleExToRegex(envAfter, categories, numGroups)
     printDebug("ruleToRegex",("target", target), ("environment", environment), ("envBefore", envBefore), ("envAfter", envAfter), ("result", (befRE + tgtRE + aftRE, befRE, tgtRE, aftRE)))
     return befRE + tgtRE + aftRE, befRE, tgtRE, aftRE, tgtIndex
@@ -295,7 +295,7 @@ Returns a list of output strings according to the output format."""
         if rule.strip() == "":
             continue
         if rule.count("|") != 1:
-            raise SCAError('Invalid rewrite rule: "' + rule + '" (must contain exactly one pipe)')
+            raise SCAError(f'Invalid rewrite rule: "{rule}" (must contain exactly one pipe)')
         rews.append(rule.split("|"))
     
     def   rew(word, addSpace): return (" " + rewrite(word, rews).strip() + " ") if addSpace else rewrite(word, rews).strip()
@@ -310,9 +310,9 @@ Returns a list of output strings according to the output format."""
         try:
             catKey, catContent = cat.split("=")
         except ValueError as e:
-            raise SCAError('Bad category: "' + cat + '" (must contain excactly one equals sign)')
+            raise SCAError(f'Bad category: "{cat}" (must contain excactly one equals sign)')
         if len(catKey) != 1:
-            raise SCAError('Bad category: "' + cat + '" (category identifier must be exactly one character')
+            raise SCAError(f'Bad category: "{cat}" (category identifier must be exactly one character')
         cats[catKey] = catContent # "A=abc" -> "A":"abc"
     
     # rewrite, check and convert rules
@@ -326,7 +326,7 @@ Returns a list of output strings according to the output format."""
         if rule.count("/") == 2:
             rule += "/"
         elif rule.count("/") != 3:
-            raise SCAError('Bad sound change rule: "' + rule + '" (must contain two or three slashes)')
+            raise SCAError(f'Bad sound change rule: "{rule}" (must contain two or three slashes)')
         exRules.append(rule)
     # convert rules into a list of tuples
     rules = [tuple(rule.split("/")) for rule in exRules] # "A/b/_c/d_" -> ["A","b","_c","d_"]

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SCA² (C) 2012 Mark Rosenfelder aka Zompist (markrose@zompist.com)
-Python re-code (C) 2015 Andreas Kübrich aka Schyrsivochter (andreas.kuebrich@kuebrich.de)"""
+Python re-code (C) 2015-2017 Andreas Kübrich aka Schyrsivochter (andreas.kuebrich@kuebrich.de)"""
 
 
 import os, sys
@@ -460,10 +460,10 @@ class SCAWin:
         if os.path.isfile(scaDir): # if it’s packed
             # then the WD is created in the containing folder
             scaDir = os.path.dirname(scaDir)
-        scaDir += "\\pysca"
-        scaF = "{}\\__last{}.sca"
-        slxF = "{}\\__last{}.slx"
-        jsonPath = scaDir + "\\__last.json"
+        scaDir += "/pysca"
+        scaF = "{}/{}-{}.sc"
+        slxF = "{}/{}-{}.slx"
+        jsonPath = f"{scaDir}/__last.json"
         if not os.path.exists(scaDir):
             os.mkdir(scaDir)
 
@@ -477,13 +477,13 @@ class SCAWin:
             normalRect = tuple(self.win.GetRect())
 
         # delete the .sca and .slx files
-        for filename in filter(lambda s: re.match("__last\\d*\\.s(ca|lx)", s), os.listdir(scaDir)):
-            os.remove(scaDir + "/" + filename)
+        for filename in filter(lambda s: re.match("\\d*-.*\\.s(c|lx)", s), os.listdir(scaDir)):
+            os.remove(f"{scaDir}/{filename}")
 
         # save each of the tabs in a .sca and a .slx file
         for no, tab in enumerate(self.tabs):
-            tab.saveSC (scaF.format(scaDir, no))
-            tab.saveLex(slxF.format(scaDir, no))
+            tab.saveSC (scaF.format(scaDir, no, self.notebook.GetPageText(no)))
+            tab.saveLex(slxF.format(scaDir, no, self.notebook.GetPageText(no)))
 
         # save everything in a .json file, too
         jso = {
@@ -638,9 +638,9 @@ Do not build any tabs or tab contents; that’s the task of newTab() and, ultima
         if os.path.isfile(scaDir): # if it’s packed
             # then the WD is looked for in the containing folder
             scaDir = os.path.dirname(scaDir)
-        scaDir += "\\pysca"
+        scaDir += "/pysca"
         # load the .json file
-        jsonPath = scaDir + "\\__last.json"
+        jsonPath = f"{scaDir}/__last.json"
         try:
             with open(jsonPath, encoding="utf8") as jsonFile:
                 jso = json.load(jsonFile)
