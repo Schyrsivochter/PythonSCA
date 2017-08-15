@@ -1,3 +1,5 @@
+#!/usr/bin/python3.6
+
 """Launcher script for the PythonSCA GUI.
 
     This program is free software: you can redistribute it and/or modify

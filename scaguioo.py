@@ -1,3 +1,5 @@
+#!/usr/bin/python3.6
+
 """Graphical interface for the PythonSCA.
 
     This program is free software: you can redistribute it and/or modify
